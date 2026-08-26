@@ -72,6 +72,27 @@ yet, so this would mean extracting them into a dictionary first.
 The original's feedback form was already broken (hardcoded placeholder
 recipient) and these pages are inessential — cut from the MVP rewrite.
 
+### Email invite on event creation
+- **Status:** ⚠️ UI collects it, nothing sends it
+- **Last updated:** 2026-08-26
+
+`CreateEventForm` has an email field and it's stored on the user row
+(`users.email`), but no email is ever actually sent — the original mailed the
+event link via SendGrid (itself using SendGrid's old username/password auth,
+long deprecated) on creation. Right now the field is a misleading no-op from
+the user's perspective. Needs either real sending (e.g. Resend) wired up, or
+the field should be removed until it does something.
+
+### Editing a payment's date
+- **Status:** ⛔ Not built
+- **Last updated:** 2026-08-26
+
+The original's edit-payment form let you change the payment's date
+(`created`). `PaymentForm.tsx`'s edit mode has no date field at all — the API
+technically accepts a `created` override (`paymentSchema`, `repo.editPayment`),
+but nothing in the UI can set it, so edited payments silently keep their
+original timestamp.
+
 ### Deployment
 - **Status:** 🚧 Docker setup built and tested, not yet deployed anywhere
 - **Last updated:** 2026-08-26
