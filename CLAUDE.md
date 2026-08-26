@@ -89,6 +89,25 @@ later for full consistency if that's wanted. Also deleted the leftover default
 `file.svg`/`globe.svg`/`next.svg`/`vercel.svg`/`window.svg` placeholders that
 create-next-app scaffolds but nothing referenced.
 
+### Landing page redesign
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-26
+
+User shared a richer mockup (headline + tagline, an illustrated money-bag
+mascot, a 3-step "how it works" section) and asked for the whole concept.
+Restructured `src/app/page.tsx` to match: two-column hero on desktop
+(headline "Kulut jakoon. Ilman säätöä." + copy on the left, an illustration
+on the right, stacks on mobile), the existing create-event form, and a new
+3-step explainer section (`src/components/icons.tsx`: hand-drawn flat line
+icons for each step + a `ReceiptIllustration` for the hero).
+
+One thing NOT reproduced: the mockup's illustrated mascot character. It only
+ever existed as a pasted image in chat — there's no asset file to extract it
+from and no image-generation tool available to recreate that specific
+illustrated style, so `ReceiptIllustration` (a simple flat receipt + coin) is
+a stand-in that matches the app's plain slate/Tailwind look instead. Worth
+revisiting if the user gets a real asset file for the mascot.
+
 ### i18n
 - **Status:** ⛔ Descoped from MVP
 - **Last updated:** 2026-08-26
