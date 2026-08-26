@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: massikassi
+      POSTGRES_USER: massikassi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U massikassi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-off: `docker compose run --rm migrate` to create/update tables.
+  # Not part of `docker compose up` — doesn't need to run on every restart.
+  migrate:
+    build:
+      context: .
+      target: builder # has drizzle-kit + drizzle.config.ts; the final runner stage doesn't
+    profiles: ["tools"]
+    environment:
+      DATABASE_URL: postgres://massikassi:${POSTGRES_PASSWORD}@db:5432/massikassi
+    depends_on:
+      db:
+        condition: service_healthy
+    # Calling the local binary directly (not `npx drizzle-kit`) — npx failed to
+    # resolve the already-installed local version and to auto-find
+    # drizzle.config.ts in this image, for reasons not worth chasing further.
+    entrypoint: ["node_modules/.bin/drizzle-kit", "push", "--force"]
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://massikassi:${POSTGRES_PASSWORD}@db:5432/massikassi
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:

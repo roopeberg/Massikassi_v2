@@ -73,12 +73,25 @@ The original's feedback form was already broken (hardcoded placeholder
 recipient) and these pages are inessential — cut from the MVP rewrite.
 
 ### Deployment
-- **Status:** 🚧 Not started
+- **Status:** 🚧 Docker setup built and tested, not yet deployed anywhere
 - **Last updated:** 2026-08-26
 
-Planned: Vercel (or similar) + a serverless Postgres (Neon/Supabase-style) —
-chosen for the rewrite specifically to keep hosting cost near zero. Nothing is
-deployed yet; `DATABASE_URL` needs to be set wherever this runs.
+Decided against cloud hosting (Vercel/Neon, Azure) in favor of self-hosting on
+an office machine with one of the org's static public IPs — genuinely the
+cheapest option (no cloud bill at all) and, unlike any EU-region cloud option,
+keeps the data fully in Finland with no third-party company involved at all.
+
+`Dockerfile` + `docker-compose.yml` + `Caddyfile` implement this: three
+containers (app, Postgres, Caddy for automatic HTTPS), fully tested locally
+(build, migrate, containerized app ↔ Postgres round-trip all verified
+working). Full setup instructions in [DEPLOY.md](DEPLOY.md). Still needed
+before this goes live: pick the actual domain, point its DNS A record at the
+office's static IP, forward ports 80/443 to the machine, and run the compose
+stack there.
+
+Tradeoffs accepted with this choice (see DEPLOY.md): no redundancy if the
+office's power/internet drops, no managed backups (a cron `pg_dump` is
+documented but not automated), and self-owned OS/security patching.
 
 ## Known environment quirk (this machine)
 
