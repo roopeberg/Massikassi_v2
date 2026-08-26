@@ -113,8 +113,18 @@ export function EventClient({ hash, initialEvent }: { hash: string; initialEvent
         </p>
       </div>
 
+      {/*
+        Order on mobile (single column): balance/settlement first — that's what
+        someone opening this on their phone wants to see immediately — then the
+        payment form/list, then the user list. On desktop, back to the original
+        two-column layout (main content left, balance+users stacked right).
+      */}
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="space-y-4 md:col-span-2">
+        <div className="order-1 md:order-none md:col-start-3 md:row-start-1">
+          <BalancePanel payments={payments} />
+        </div>
+
+        <div className="order-2 md:order-none space-y-4 md:col-span-2 md:col-start-1 md:row-start-1 md:row-span-2">
           {showAddForm ? (
             <PaymentForm users={users} onCancel={() => setShowAddForm(false)} onSubmit={handleAddPayment} />
           ) : (
@@ -128,9 +138,8 @@ export function EventClient({ hash, initialEvent }: { hash: string; initialEvent
           <PaymentList payments={payments} users={users} onEdit={handleEditPayment} onDelete={handleDeletePayment} />
         </div>
 
-        <div className="space-y-6">
+        <div className="order-3 md:order-none md:col-start-3 md:row-start-2">
           <UserPanel hash={hash} users={users} onUserAdded={(user) => setUsers((prev) => [...prev, user])} />
-          <BalancePanel payments={payments} />
         </div>
       </div>
     </main>

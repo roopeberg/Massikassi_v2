@@ -56,6 +56,20 @@ Create event (name + first user + optional email, honeypot spam field) → link-
 access → add users → add/edit/delete payments → live balances + settlement
 suggestions. Verified end-to-end in a real browser against a Dockerized Postgres.
 
+### Mobile layout & touch targets
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-26
+
+On mobile (single column), balance/settlement now renders first — that's what
+someone opening this on their phone actually wants to check — instead of
+being scrolled past the whole payment list at the bottom (`EventClient.tsx`,
+CSS `order` only, desktop layout unchanged). Payer/sharer selection in
+`PaymentForm.tsx` is now tap-sized pill/chip buttons (`min-h-11`) instead of
+bare checkboxes. Edit/delete buttons in `PaymentList.tsx` got padding to reach
+the same minimum tap size. Verified visually on a 375px viewport; the chip
+styling specifically wasn't click-tested end-to-end due to a browser-tool
+issue unrelated to the app (clicks stopped registering mid-session).
+
 ### i18n
 - **Status:** ⛔ Descoped from MVP
 - **Last updated:** 2026-08-26

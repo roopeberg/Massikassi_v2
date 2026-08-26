@@ -52,8 +52,12 @@ function PaymentRow({
             {payers.map((p) => p.name).join(" & ")} → {sharers.map((s) => s.name).join(", ")}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2 text-sm">
-          <button type="button" onClick={() => setEditing(true)} className="text-slate-500 hover:text-slate-900">
+        <div className="flex shrink-0 gap-1 text-sm">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="min-h-11 rounded px-3 py-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200"
+          >
             Muokkaa
           </button>
           <button
@@ -63,7 +67,7 @@ function PaymentRow({
               setDeleting(true);
               await onDelete();
             }}
-            className="text-red-500 hover:text-red-700 disabled:opacity-50"
+            className="min-h-11 rounded px-3 py-2 text-red-500 hover:bg-red-50 hover:text-red-700 active:bg-red-100 disabled:opacity-50"
           >
             Poista
           </button>

@@ -37,6 +37,14 @@ export function PaymentForm({
     setSet(next);
   }
 
+  // Chip-style selectable pill instead of a bare checkbox — a name-length
+  // label is too small a tap target on a phone, this is the whole pill.
+  function chipClass(checked: boolean) {
+    return `inline-flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
+      checked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 active:bg-slate-100"
+    }`;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -96,11 +104,12 @@ export function PaymentForm({
 
       <fieldset>
         <legend className="text-xs font-medium text-slate-600">Kuka maksoi</legend>
-        <div className="mt-1 flex flex-wrap gap-3">
+        <div className="mt-1 flex flex-wrap gap-2">
           {users.map((u) => (
-            <label key={u.id} className="flex items-center gap-1 text-sm">
+            <label key={u.id} className={chipClass(payerIds.has(u.id))}>
               <input
                 type="checkbox"
+                className="sr-only"
                 checked={payerIds.has(u.id)}
                 onChange={() => toggle(payerIds, setPayerIds, u.id)}
               />
@@ -121,11 +130,12 @@ export function PaymentForm({
             {sharerIds.size === users.length ? "Tyhjennä" : "Valitse kaikki"}
           </button>
         </legend>
-        <div className="mt-1 flex flex-wrap gap-3">
+        <div className="mt-1 flex flex-wrap gap-2">
           {users.map((u) => (
-            <label key={u.id} className="flex items-center gap-1 text-sm">
+            <label key={u.id} className={chipClass(sharerIds.has(u.id))}>
               <input
                 type="checkbox"
+                className="sr-only"
                 checked={sharerIds.has(u.id)}
                 onChange={() => toggle(sharerIds, setSharerIds, u.id)}
               />
