@@ -70,6 +70,22 @@ the same minimum tap size. Verified visually on a 375px viewport; the chip
 styling specifically wasn't click-tested end-to-end due to a browser-tool
 issue unrelated to the app (clicks stopped registering mid-session).
 
+### Logo & favicon
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-26
+
+The original's `massikassi_logo.png` (a blocky pixel-style wordmark) wasn't
+reused directly — low-res, and one sibling asset in the same folder
+(`just-hanging-out.png`) was a dated joke photo of real people that had no
+reason to follow into this rewrite. Instead: a clean redo of the same blocky
+feel using Press Start 2P (`next/font/google`, self-hosted at build time —
+works fine offline in the Docker deploy) in `src/components/Logo.tsx`, used
+on the landing page and 404 page. Favicon is a simple dark "M" square
+(`src/app/icon.svg`, Next's static-icon convention), replacing the unused
+default Next.js favicon. Also deleted the leftover default
+`file.svg`/`globe.svg`/`next.svg`/`vercel.svg`/`window.svg` placeholders that
+create-next-app scaffolds but nothing referenced.
+
 ### i18n
 - **Status:** ⛔ Descoped from MVP
 - **Last updated:** 2026-08-26
