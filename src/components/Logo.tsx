@@ -1,17 +1,27 @@
-const SIZES = {
-  sm: "text-xs",
-  lg: "text-2xl sm:text-3xl",
+const HEIGHTS = {
+  sm: "h-3",
+  lg: "h-6 sm:h-8",
 } as const;
 
 /**
- * A clean redo of the original massikassi's blocky pixel-font "MASSIKASSI"
- * wordmark (public/img/massikassi_logo.png in the old repo) — same retro
- * feel via Press Start 2P, not a re-export of the old low-res PNG.
+ * The original massikassi wordmark (public/img/massikassi_logo.png in the
+ * old repo), traced 1:1 to vector with potrace so it stays crisp at any
+ * size instead of the old low-res raster.
  */
-export function Logo({ size = "lg" }: { size?: keyof typeof SIZES }) {
+export function Logo({ size = "lg" }: { size?: keyof typeof HEIGHTS }) {
   return (
-    <span className={`font-[family-name:var(--font-logo)] tracking-tight text-slate-900 ${SIZES[size]}`}>
-      massikassi
-    </span>
+    <svg
+      viewBox="0 0 304 48"
+      role="img"
+      aria-label="massikassi"
+      className={`${HEIGHTS[size]} w-auto text-slate-900`}
+      fill="currentColor"
+    >
+      <g transform="translate(0,48) scale(0.1,-0.1)" stroke="none">
+        <path d="M0 240 l0 -240 1520 0 1520 0 0 240 0 240 -1520 0 -1520 0 0 -240z m460 0 l0 -220 -60 0 -60 0 0 160 c0 153 -1 160 -20 160 -19 0 -20 -7 -20 -160 l0 -160 -60 0 -60 0 0 160 c0 153 -1 160 -20 160 -19 0 -20 -7 -20 -160 l0 -160 -60 0 -60 0 0 220 0 220 220 0 220 0 0 -220z m320 0 l0 -220 -60 0 -60 0 0 80 c0 73 -2 80 -20 80 -18 0 -20 -7 -20 -80 l0 -80 -60 0 -60 0 0 220 0 220 140 0 140 0 0 -220z m320 160 l0 -60 -80 0 c-73 0 -80 -2 -80 -20 0 -18 7 -20 80 -20 l80 0 0 -140 0 -140 -140 0 -140 0 0 60 0 60 80 0 c73 0 80 2 80 20 0 18 -7 20 -80 20 l-80 0 0 140 0 140 140 0 140 0 0 -60z m320 0 l0 -60 -80 0 c-73 0 -80 -2 -80 -20 0 -18 7 -20 80 -20 l80 0 0 -140 0 -140 -140 0 -140 0 0 60 0 60 80 0 c73 0 80 2 80 20 0 18 -7 20 -80 20 l-80 0 0 140 0 140 140 0 140 0 0 -60z m160 -160 l0 -220 -60 0 -60 0 0 220 0 220 60 0 60 0 0 -220z m160 160 c0 -53 2 -60 20 -60 18 0 20 7 20 60 l0 60 60 0 60 0 0 -100 c0 -93 -1 -100 -20 -100 -13 0 -20 -7 -20 -20 0 -13 7 -20 20 -20 19 0 20 -7 20 -100 l0 -100 -60 0 -60 0 0 60 c0 53 -2 60 -20 60 -18 0 -20 -7 -20 -60 l0 -60 -60 0 -60 0 0 220 0 220 60 0 60 0 0 -60z m480 -160 l0 -220 -60 0 -60 0 0 80 c0 73 -2 80 -20 80 -18 0 -20 -7 -20 -80 l0 -80 -60 0 -60 0 0 220 0 220 140 0 140 0 0 -220z m320 160 l0 -60 -80 0 c-73 0 -80 -2 -80 -20 0 -18 7 -20 80 -20 l80 0 0 -140 0 -140 -140 0 -140 0 0 60 0 60 80 0 c73 0 80 2 80 20 0 18 -7 20 -80 20 l-80 0 0 140 0 140 140 0 140 0 0 -60z m320 0 l0 -60 -80 0 c-73 0 -80 -2 -80 -20 0 -18 7 -20 80 -20 l80 0 0 -140 0 -140 -140 0 -140 0 0 60 0 60 80 0 c73 0 80 2 80 20 0 18 -7 20 -80 20 l-80 0 0 140 0 140 140 0 140 0 0 -60z m160 -160 l0 -220 -60 0 -60 0 0 220 0 220 60 0 60 0 0 -220z" />
+        <path d="M620 315 c0 -8 9 -15 20 -15 11 0 20 7 20 15 0 8 -9 15 -20 15 -11 0 -20 -7 -20 -15z" />
+        <path d="M2060 315 c0 -8 9 -15 20 -15 11 0 20 7 20 15 0 8 -9 15 -20 15 -11 0 -20 -7 -20 -15z" />
+      </g>
+    </svg>
   );
 }

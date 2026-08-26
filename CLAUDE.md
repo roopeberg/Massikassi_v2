@@ -74,15 +74,18 @@ issue unrelated to the app (clicks stopped registering mid-session).
 - **Status:** ✅ Completed
 - **Last updated:** 2026-08-26
 
-The original's `massikassi_logo.png` (a blocky pixel-style wordmark) wasn't
-reused directly — low-res, and one sibling asset in the same folder
-(`just-hanging-out.png`) was a dated joke photo of real people that had no
-reason to follow into this rewrite. Instead: a clean redo of the same blocky
-feel using Press Start 2P (`next/font/google`, self-hosted at build time —
-works fine offline in the Docker deploy) in `src/components/Logo.tsx`, used
-on the landing page and 404 page. Favicon is a simple dark "M" square
-(`src/app/icon.svg`, Next's static-icon convention), replacing the unused
-default Next.js favicon. Also deleted the leftover default
+First pass reinterpreted the original's blocky `massikassi_logo.png` wordmark
+with a similar-feeling Google Font (Press Start 2P) — user feedback was that
+it didn't actually look like the old logo. Replaced with the real thing:
+the original PNG traced 1:1 to vector with `potrace` (thresholded to pure
+black/white first, then `potrace -s --tight`), giving the exact original
+letterforms as a crisp, infinitely-scalable SVG in `src/components/Logo.tsx`.
+One sibling asset in the source image folder (`just-hanging-out.png`) was a
+dated joke photo of real people — not traced, not reused, no reason to carry
+it into this rewrite. Used on the landing page and 404 page. Favicon
+(`src/app/icon.svg`, Next's static-icon convention) is still a simple dark
+"M" square, not derived from the traced mark — could be cropped from it
+later for full consistency if that's wanted. Also deleted the leftover default
 `file.svg`/`globe.svg`/`next.svg`/`vercel.svg`/`window.svg` placeholders that
 create-next-app scaffolds but nothing referenced.
 
