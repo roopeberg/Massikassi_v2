@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { RetentionSelect } from "./RetentionSelect";
 
+const fieldClass =
+  "h-[52px] w-full rounded-2xl bg-[#efeae0] px-4 text-[15px] text-[#12141c] placeholder:text-[#9aa1b0] focus:outline-2 focus:outline-[#f5b544]";
+
 export function CreateEventForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -49,63 +52,74 @@ export function CreateEventForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-      {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+    <form
+      id="luo-tapahtuma"
+      onSubmit={handleSubmit}
+      className="rounded-[28px] bg-[#fbf7f0] p-8 text-[#12141c] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]"
+    >
+      <div className="font-[family-name:var(--font-bricolage)] text-2xl font-semibold tracking-tight">
+        Aloita tästä
+      </div>
+      <p className="mt-2 text-sm text-[#6b7080]">Tapahtuma syntyy heti — linkin voit jakaa vaikka WhatsAppissa.</p>
 
-      <div>
-        <label htmlFor="event-name" className="block text-sm font-medium text-slate-700">
-          Tapahtuman nimi
-        </label>
-        <input
-          id="event-name"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Esim. Mökkiviikonloppu"
-          className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-        />
+      {error && <p className="mt-4 rounded-xl bg-red-100 px-3 py-2 text-sm text-red-700">{error}</p>}
+
+      <div className="mt-6 flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="event-name" className="text-xs font-medium text-[#4b5060]">
+            Tapahtuman nimi
+          </label>
+          <input
+            id="event-name"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Esim. Mökkiviikonloppu"
+            className={fieldClass}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="user-name" className="text-xs font-medium text-[#4b5060]">
+            Oma nimesi
+          </label>
+          <input
+            id="user-name"
+            required
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Etunimi tai nimimerkki"
+            className={fieldClass}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="flex items-center gap-2 text-xs font-medium text-[#4b5060]">
+            Sähköposti <span className="font-normal text-[#9aa1b0]">valinnainen</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="jotta saat linkin talteen"
+            className={fieldClass}
+          />
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="user-name" className="block text-sm font-medium text-slate-700">
-          Oma nimesi
-        </label>
-        <input
-          id="user-name"
-          required
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          placeholder="Etunimi tai nimimerkki"
-          className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-          Sähköposti (valinnainen)
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="jotta saat linkin talteen"
-          className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-        />
-      </div>
-
-      <div className="text-sm text-slate-600">
+      <div className="mt-4 text-sm text-[#6b7080]">
         {!editingRetention ? (
           <p>
             {retentionChoice === "forever" ? "Tapahtuma säilytetään ikuisesti." : `Tapahtuma säilytetään ${retentionChoice} kk.`}{" "}
-            <button type="button" onClick={() => setEditingRetention(true)} className="text-slate-500 underline">
+            <button type="button" onClick={() => setEditingRetention(true)} className="underline">
               Muuta
             </button>
           </p>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <RetentionSelect value={retentionChoice} onChange={setRetentionChoice} />
-            <button type="button" onClick={() => setEditingRetention(false)} className="text-slate-500 underline">
+            <button type="button" onClick={() => setEditingRetention(false)} className="underline">
               Valmis
             </button>
           </div>
@@ -121,10 +135,17 @@ export function CreateEventForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+        className="mt-6 flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-[#12141c] text-base font-bold text-[#fbf7f0] hover:bg-[#1e2230] disabled:opacity-50"
       >
         {submitting ? "Luodaan..." : "Luo tapahtuma"}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h13M13 6l6 6-6 6" />
+        </svg>
       </button>
+
+      <p className="mt-4 text-center text-xs leading-relaxed text-[#8a8f9d]">
+        Ei rekisteröitymistä. Tapahtumaan pääsee vain sen linkin kautta — säilytä se.
+      </p>
     </form>
   );
 }

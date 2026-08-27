@@ -89,8 +89,8 @@ later for full consistency if that's wanted. Also deleted the leftover default
 `file.svg`/`globe.svg`/`next.svg`/`vercel.svg`/`window.svg` placeholders that
 create-next-app scaffolds but nothing referenced.
 
-### Landing page redesign
-- **Status:** ✅ Completed
+### Landing page redesign (light, illustrated) — superseded
+- **Status:** ⛔ Replaced, see "Landing page redesign (dark theme)" below
 - **Last updated:** 2026-08-26
 
 User shared a richer mockup (headline + tagline, an illustrated money-bag
@@ -111,6 +111,40 @@ with absolute positioning (mascot + overlapping receipt + coins); the step
 section uses the three step SVGs directly (each already includes its own
 background blob, just a numbered badge overlaid). The old placeholder
 `src/components/icons.tsx` was deleted as no longer needed.
+
+`public/illustrations/*.svg` from this pass are unused now but left in
+place (harmless, small) in case the mascot direction comes back.
+
+### Landing page redesign (dark theme)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+User got a UI proposal from the original massikassi's developer — a design
+canvas export (`.dc.html` + a README saying "reference mockup, replicate
+faithfully, not production code") at
+`/Users/roopeberg/Downloads/ReissuEtusivu-html.zip` — and asked to adopt it,
+replacing the light illustrated version above. Rebuilt `src/app/page.tsx`
+and `src/components/CreateEventForm.tsx` to match it closely: dark
+`#12141c` background, amber `#f5b544` accent, a cream `#fbf7f0` card for
+the create-event form, Bricolage Grotesque (headings) + Space Grotesk
+(body) fonts added in `layout.tsx` but scoped to this page only (rest of
+the app keeps Geist). Kept: the retention picker and honeypot from the
+previous version, folded into the new card styling.
+
+One deliberate departure from the mockup, decided with the user: it uses
+its own minimal "m" mark + wordmark rather than the blocky vector-traced
+original logo (`src/components/Logo.tsx`) — still used on the 404 page, so
+there's now a small brand inconsistency between that page and the landing
+page. Also: the mockup's dark/light toggle icon in the nav is decorative
+only (not a real toggle, not a `<button>`) — this page doesn't have a light
+variant to switch to.
+
+Verified: renders correctly at desktop and mobile widths, matches the
+reference closely. Not fully click-verified end-to-end — the browser
+automation tool used to test this session had recurring click-registration
+flakiness unrelated to the app; static checks (`tsc`, `eslint`) are clean
+and the form's submit wiring itself is unchanged from the previously
+verified-working version (only its JSX/classes changed).
 
 ### i18n
 - **Status:** ⛔ Descoped from MVP
