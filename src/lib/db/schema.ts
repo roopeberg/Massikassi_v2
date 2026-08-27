@@ -10,6 +10,11 @@ export const events = pgTable("events", {
   // cascade) is deleted once this passes — see scripts/flush-expired-events.ts.
   // Defaults to 3 months from creation unless the creator picks "forever".
   expiresAt: timestamp("expires_at", { withTimezone: true }),
+  // Set only by scripts/migrate-legacy-data.ts, never by the app itself.
+  // Marks "this event's retention was auto-set on import, nobody has
+  // actively confirmed/changed it yet" — cleared (set to null) the moment
+  // someone does, in repo.updateEvent. Drives the banner in EventClient.
+  migratedAt: timestamp("migrated_at", { withTimezone: true }),
 });
 
 export const users = pgTable(
@@ -18,7 +23,6 @@ export const users = pgTable(
     id: serial("id").primaryKey(),
     eventId: integer("event_id").notNull(),
     name: varchar("name", { length: 40 }).notNull(),
-    email: varchar("email", { length: 254 }),
   },
   (table) => [
     foreignKey({ columns: [table.eventId], foreignColumns: [events.id] }).onDelete("cascade"),

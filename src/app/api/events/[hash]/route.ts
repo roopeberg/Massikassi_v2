@@ -22,7 +22,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { hash } = await params;
     const body = updateEventSchema.parse(await request.json());
     const updated = await updateEvent(hash, body);
-    return NextResponse.json({ name: updated.name, expiresAt: updated.expiresAt });
+    return NextResponse.json({ name: updated.name, expiresAt: updated.expiresAt, migratedAt: updated.migratedAt });
   } catch (error) {
     return handleApiError(error);
   }

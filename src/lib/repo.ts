@@ -35,7 +35,6 @@ async function findEventByHash(hash: string) {
 export async function createEvent(input: {
   name: string;
   userName: string;
-  email?: string;
   retentionMonths?: number | null;
 }) {
   return db.transaction(async (tx) => {
@@ -55,7 +54,6 @@ export async function createEvent(input: {
     await tx.insert(users).values({
       eventId: event.id,
       name: input.userName,
-      email: input.email || null,
     });
 
     return event;
@@ -103,6 +101,7 @@ export async function getEventInfo(hash: string) {
     createdBy: event.createdBy,
     created: event.created,
     expiresAt: event.expiresAt,
+    migratedAt: event.migratedAt,
     users: eventUsers.map((u) => ({ id: u.id, name: u.name })),
     payments: paymentList,
   };
@@ -111,12 +110,15 @@ export async function getEventInfo(hash: string) {
 export async function updateEvent(hash: string, input: { name?: string; retentionMonths?: number | null }) {
   const event = await findEventByHash(hash);
 
-  const patch: { name?: string; expiresAt?: Date | null } = {};
+  const patch: { name?: string; expiresAt?: Date | null; migratedAt?: null } = {};
   if (input.name !== undefined) patch.name = input.name;
   // A chosen retention always counts from now, not from the original
   // creation date — matches what the UI says ("N kk tästä hetkestä").
+  // Also counts as "someone actively dealt with this" for a migrated
+  // event's auto-set retention — see the migratedAt column comment.
   if (input.retentionMonths !== undefined) {
     patch.expiresAt = input.retentionMonths === null ? null : monthsFromNow(input.retentionMonths);
+    patch.migratedAt = null;
   }
 
   const [updated] = await db.update(events).set(patch).where(eq(events.id, event.id)).returning();

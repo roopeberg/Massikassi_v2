@@ -24,6 +24,8 @@ export interface EventInfo {
   created: Date;
   /** Null = kept forever. Otherwise auto-deleted once this passes. */
   expiresAt: Date | null;
+  /** Set only for a legacy-imported event whose retention nobody has touched yet. */
+  migratedAt: Date | null;
   users: EventUser[];
   payments: EventPayment[];
 }

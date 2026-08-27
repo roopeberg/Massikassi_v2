@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BalancePanel } from "./BalancePanel";
 import { EventSettingsPanel } from "./EventSettingsPanel";
+import { MigratedEventBanner } from "./MigratedEventBanner";
 import { PaymentForm, type PaymentFormValues } from "./PaymentForm";
 import { PaymentList } from "./PaymentList";
 import { UserPanel } from "./UserPanel";
@@ -33,6 +34,7 @@ export function EventClient({
   const [payments, setPayments] = useState<EventPayment[]>(initialEvent.payments);
   const [showAddForm, setShowAddForm] = useState(false);
   const [expiresAt, setExpiresAt] = useState(initialEvent.expiresAt);
+  const [migratedAt, setMigratedAt] = useState(initialEvent.migratedAt);
 
   async function handleSaveName() {
     const trimmed = nameDraft.trim();
@@ -122,6 +124,17 @@ export function EventClient({
           Luonut {initialEvent.createdBy} {new Date(initialEvent.created).toLocaleDateString("fi-FI")}
         </p>
       </div>
+
+      {migratedAt && (
+        <MigratedEventBanner
+          hash={hash}
+          expiresAt={expiresAt}
+          onChanged={(newExpiresAt) => {
+            setExpiresAt(newExpiresAt);
+            setMigratedAt(null);
+          }}
+        />
+      )}
 
       {/*
         Order on mobile (single column): balance/settlement first — that's what

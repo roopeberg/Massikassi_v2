@@ -3,7 +3,6 @@ import { z } from "zod";
 export const createEventSchema = z.object({
   name: z.string().trim().min(1).max(200),
   userName: z.string().trim().min(1).max(40),
-  email: z.union([z.literal(""), z.string().trim().email()]).optional(),
   // Null = forever, 1-12 = months from creation. Omit to get the 3-month default.
   retentionMonths: z.union([z.null(), z.number().int().min(1).max(12)]).optional(),
   // Honeypot field: must stay empty. Real users never see or fill it.

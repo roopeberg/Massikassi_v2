@@ -11,7 +11,6 @@ export function CreateEventForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
   const [editingRetention, setEditingRetention] = useState(false);
   const [retentionChoice, setRetentionChoice] = useState("3");
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +28,6 @@ export function CreateEventForm() {
         body: JSON.stringify({
           name,
           userName,
-          email,
           retentionMonths: retentionChoice === "forever" ? null : Number(retentionChoice),
           business: businessRef.current?.value ?? "",
         }),
@@ -89,20 +87,6 @@ export function CreateEventForm() {
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             placeholder="Etunimi tai nimimerkki"
-            className={fieldClass}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="flex items-center gap-2 text-xs font-medium text-[#4b5060]">
-            Sähköposti <span className="font-normal text-[#9aa1b0]">valinnainen</span>
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="jotta saat linkin talteen"
             className={fieldClass}
           />
         </div>

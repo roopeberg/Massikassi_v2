@@ -25,13 +25,24 @@
  * crypto.randomBytes change was to stop generating *new* guessable hashes,
  * not to invalidate old ones.
  *
- * Imported events get expires_at = null (kept forever, not the 3-month
- * default new events get) — see scripts/flush-expired-events.ts. Importing
- * old data on purpose and then having it silently auto-delete a few months
- * later would defeat the point of importing it.
+ * Imported events get a 12-month expiry from the moment of import (longer
+ * than the 3-month default new events get, since this is data someone
+ * specifically asked to bring back — but not forever either) — see
+ * scripts/flush-expired-events.ts. `migrated_at` is also set, which shows a
+ * banner on the event page ("this retention was auto-set on import") until
+ * someone actually changes it — see the migratedAt column comment in
+ * lib/db/schema.ts.
  */
 
 import postgres from "postgres";
+
+const IMPORT_RETENTION_MONTHS = 12;
+
+function monthsFromNow(months: number): Date {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
 
 const legacyUrl = process.env.LEGACY_DATABASE_URL;
 const targetUrl = process.env.DATABASE_URL;
@@ -53,7 +64,6 @@ interface LegacyUser {
   id: number;
   name: string;
   event_id: number;
-  email: string | null;
 }
 interface LegacyPayment {
   id: number;
@@ -79,7 +89,7 @@ async function main() {
   try {
     const [events, users, payments, dues] = await Promise.all([
       legacy<LegacyEvent[]>`SELECT id, name, hash, created, created_by FROM api_event ORDER BY id`,
-      legacy<LegacyUser[]>`SELECT id, name, event_id, email FROM api_user ORDER BY id`,
+      legacy<LegacyUser[]>`SELECT id, name, event_id FROM api_user ORDER BY id`,
       legacy<LegacyPayment[]>`SELECT id, event_id, description, amount, created, modified, deleted, original FROM api_payment ORDER BY id`,
       legacy<LegacyDue[]>`SELECT user_id, amount, payer, payment_id FROM api_due ORDER BY payment_id`,
     ]);
@@ -93,12 +103,15 @@ async function main() {
       return;
     }
 
+    const importExpiresAt = monthsFromNow(IMPORT_RETENTION_MONTHS);
+    const importedAt = new Date();
+
     await target.begin(async (tx) => {
       for (const e of events) {
-        await tx`INSERT INTO events (id, name, hash, created_by, created) VALUES (${e.id}, ${e.name}, ${e.hash}, ${e.created_by}, ${e.created})`;
+        await tx`INSERT INTO events (id, name, hash, created_by, created, expires_at, migrated_at) VALUES (${e.id}, ${e.name}, ${e.hash}, ${e.created_by}, ${e.created}, ${importExpiresAt}, ${importedAt})`;
       }
       for (const u of users) {
-        await tx`INSERT INTO users (id, event_id, name, email) VALUES (${u.id}, ${u.event_id}, ${u.name}, ${u.email})`;
+        await tx`INSERT INTO users (id, event_id, name) VALUES (${u.id}, ${u.event_id}, ${u.name})`;
       }
       for (const p of payments) {
         await tx`INSERT INTO payments (id, event_id, description, amount, created, modified, deleted, original_id)
