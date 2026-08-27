@@ -170,6 +170,25 @@ Tradeoffs accepted with this choice (see DEPLOY.md): no redundancy if the
 office's power/internet drops, no managed backups (a cron `pg_dump` is
 documented but not automated), and self-owned OS/security patching.
 
+### Legacy data import
+- **Status:** ✅ Script written and tested, not yet run against real data
+- **Last updated:** 2026-08-27
+
+User asked in advance how old massikassi production data could be migrated
+in, before actually having any such data. `scripts/migrate-legacy-data.ts`
+imports the original's `api_event`/`api_user`/`api_payment`/`api_due` tables
+into this rewrite's schema — see [MIGRATION.md](MIGRATION.md) for the how
+and why (short version: the schemas map ~1:1, ids are preserved so every
+reference, including a payment's `original` edit-history link, stays correct
+with no remapping, and old hashes are kept as-is rather than regenerated so
+bookmarked links keep working).
+
+Tested end-to-end against a throwaway Postgres seeded with the *real*
+original `db/schema.js` table definitions and a couple of realistic rows —
+import ran clean, and a manual insert afterward confirmed the post-import
+sequence reset doesn't collide with imported ids. No actual production data
+has gone through this yet.
+
 ## Known environment quirk (this machine)
 
 The Homebrew `node` binary on this Mac is Gatekeeper-rejected (ad-hoc signed),
