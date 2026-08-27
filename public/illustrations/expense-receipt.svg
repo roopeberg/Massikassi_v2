@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 390" role="img" aria-labelledby="t d">
+  <title id="t">Kulukuitit</title><desc id="d">Käsin piirretty kuitti, jossa näkyvät pizza-, taksi- ja juomakulut.</desc>
+  <g transform="rotate(5 125 195)" stroke="#0C1A32" stroke-linejoin="round">
+    <path d="M47 22 61 30 76 21 91 30 107 21 123 30 139 21 155 30 171 21 187 30 203 22 192 359 177 350 162 360 147 350 132 360 117 350 102 360 87 350 72 360 57 350 42 359Z" fill="#FFFDF7" stroke-width="7"/>
+    <g fill="#0C1A32" stroke="none" font-family="Arial,Helvetica,sans-serif" font-weight="800">
+      <text x="74" y="76" font-size="24">PIZZA</text><text x="74" y="105" font-size="23">28,00 €</text>
+      <text x="74" y="160" font-size="24">TAKSI</text><text x="74" y="189" font-size="23">17,40 €</text>
+      <text x="74" y="245" font-size="24">JUOMAT</text><text x="74" y="274" font-size="23">12,50 €</text>
+    </g>
+    <path d="M72 314h90" fill="none" stroke-width="4" stroke-dasharray="9 10"/>
+  </g>
+  <g fill="none" stroke="#0C1A32" stroke-width="7" stroke-linecap="round"><path d="M23 38 4 18m16 70-20-3m74-73-4-25m45 23 6-22"/></g>
+</svg>

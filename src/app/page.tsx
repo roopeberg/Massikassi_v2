@@ -1,20 +1,19 @@
 import { CreateEventForm } from "@/components/CreateEventForm";
 import { Logo } from "@/components/Logo";
-import { NotebookIcon, ReceiptIcon, ReceiptIllustration, TransferIcon } from "@/components/icons";
 
 const steps = [
   {
-    icon: NotebookIcon,
+    src: "/illustrations/step-1-create-event.svg",
     title: "Luo tapahtuma",
     description: "Nimeä reissu, mökkiviikonloppu tai mikä tahansa yhteinen meno.",
   },
   {
-    icon: ReceiptIcon,
+    src: "/illustrations/step-2-add-expenses.svg",
     title: "Lisää kulut",
     description: "Kirjaa kuka maksoi ja ketkä jakoivat kulun.",
   },
   {
-    icon: TransferIcon,
+    src: "/illustrations/step-3-settle-money.svg",
     title: "Tasaa rahat",
     description: "Massikassi kertoo selkeästi, kuka maksaa kenelle.",
   },
@@ -36,9 +35,19 @@ export default function LandingPage() {
             Luo tapahtuma, kutsu porukka linkillä ja anna Massikassin laskea kuka maksaa kenelle.
           </p>
         </div>
+        {/* eslint-disable @next/next/no-img-element -- decorative, pre-rendered SVGs, no benefit from next/image */}
         <div className="hidden justify-center lg:flex">
-          <ReceiptIllustration className="h-56 w-56" />
+          <div className="relative h-96 w-80">
+            <img src="/illustrations/money-bag-mascot.svg" alt="" className="absolute right-0 bottom-0 h-80 w-auto" />
+            <img
+              src="/illustrations/expense-receipt.svg"
+              alt=""
+              className="absolute top-0 left-2 h-52 w-auto drop-shadow-md"
+            />
+            <img src="/illustrations/coins.svg" alt="" className="absolute bottom-6 left-0 h-16 w-auto" />
+          </div>
         </div>
+        {/* eslint-enable @next/next/no-img-element */}
       </div>
 
       <div className="mx-auto mt-12 max-w-md">
@@ -51,8 +60,9 @@ export default function LandingPage() {
       <div className="mt-20 grid gap-10 sm:grid-cols-3">
         {steps.map((step, i) => (
           <div key={step.title} className="text-center">
-            <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
-              <step.icon className="h-9 w-9 text-slate-700" />
+            <div className="relative mx-auto h-24 w-24">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={step.src} alt="" className="h-24 w-24" />
               <span className="absolute -top-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                 {i + 1}
               </span>

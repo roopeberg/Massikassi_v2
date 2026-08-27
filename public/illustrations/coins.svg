@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 150" role="img" aria-labelledby="t">
+  <title id="t">Massikassi-kolikot</title>
+  <g stroke="#0C1A32" stroke-width="6" stroke-linejoin="round">
+    <path d="M92 83v27c0 13 29 24 65 24s65-11 65-24V83Z" fill="#D9A34E"/>
+    <ellipse cx="157" cy="83" rx="65" ry="25" fill="#F4C56D"/>
+    <path d="M104 64v21c0 12 24 21 53 21s53-9 53-21V64Z" fill="#D9A34E"/>
+    <ellipse cx="157" cy="64" rx="53" ry="21" fill="#F7CC78"/>
+    <path d="M19 100v22c0 12 25 21 56 21s56-9 56-21v-22Z" fill="#D9A34E"/>
+    <ellipse cx="75" cy="100" rx="56" ry="21" fill="#F7CC78"/>
+    <path d="M43 99c17-7 46-7 64 0m26-36c16-6 34-6 50 0" fill="none" stroke="#B77D37" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="t"><title id="t">Tasaa rahat</title>
+  <path d="M26 83C27 27 74 12 123 27c46 14 48 65 27 105-23 43-78 43-107 15-16-16-18-39-17-64Z" fill="#E9EEF6"/>
+  <g fill="none" stroke="#0C1A32" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="55" cy="62" r="14"/><path d="M32 111c1-24 10-34 23-34s22 10 23 34c-14 7-31 7-46 0Z"/><circle cx="128" cy="62" r="14"/><path d="M105 111c1-24 10-34 23-34s22 10 23 34c-14 7-31 7-46 0ZM76 71h31m-7-8 8 8-8 8m-17 8-8 8 8 8m-8-8h32"/></g>
+  <text x="91" y="151" fill="#0C1A32" font-family="Arial,Helvetica,sans-serif" font-size="38" font-weight="800" text-anchor="middle">€</text>
+</svg>
