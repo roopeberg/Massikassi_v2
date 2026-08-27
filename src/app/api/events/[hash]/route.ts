@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/api-errors";
 import { getEventInfo, updateEventName } from "@/lib/repo";
+import { clientIp, rateLimit, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { updateEventSchema } from "@/lib/validation";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ hash: string }> }) {
@@ -14,6 +15,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ hash: string }> }) {
+  const limit = rateLimit(`events:update:${clientIp(request)}`, 30, 60 * 1000);
+  if (!limit.ok) return tooManyRequestsResponse(limit.retryAfterSeconds);
+
   try {
     const { hash } = await params;
     const body = updateEventSchema.parse(await request.json());

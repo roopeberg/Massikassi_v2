@@ -128,6 +128,35 @@ yet, so this would mean extracting them into a dictionary first.
 The original's feedback form was already broken (hardcoded placeholder
 recipient) and these pages are inessential — cut from the MVP rewrite.
 
+### Security hardening (no-login model)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+Since there's no login, the event hash in the URL is the *only* access
+control — these all follow from that:
+- `next.config.ts`: `Referrer-Policy: no-referrer` (an outbound link from an
+  event page could otherwise leak the hash via the Referer header),
+  `X-Content-Type-Options`, `X-Frame-Options`, a baseline CSP (see the
+  in-file comment — it allows `'unsafe-inline'` for script/style; real
+  nonce-based hardening would need middleware, bigger change than this
+  pass), and `X-Robots-Tag: noindex` on `/event/:path*` and
+  `/api/events/:path*` so a crawler can never index/cache a link.
+- `src/app/event/[hash]/page.tsx` also sets `metadata.robots` directly (the
+  header alone doesn't produce the `<meta>` tag).
+- `src/lib/rate-limit.ts`: a plain in-memory per-IP limiter (this runs as a
+  single long-lived process, see DEPLOY.md — no Redis needed unless that
+  changes). Applied to every mutating API route: event creation (5/10min,
+  the one action with zero prerequisites and so the most spam-attractive)
+  and add-user/add-payment/edit-payment/delete-payment/rename-event
+  (30/min each). Verified end-to-end: headers present on real responses
+  (including error responses), 429 + `Retry-After` fires correctly once a
+  limit is exceeded.
+
+Still open (discussed with the user, not yet decided/built): a "regenerate
+this event's link" action for when a link leaks, and the email field
+either getting wired up for real or removed (see below — it currently does
+nothing).
+
 ### Email invite on event creation
 - **Status:** ⚠️ UI collects it, nothing sends it
 - **Last updated:** 2026-08-26
