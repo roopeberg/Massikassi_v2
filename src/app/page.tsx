@@ -22,7 +22,7 @@ const steps = [
 export default function LandingPage() {
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-16">
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
         <div>
           <Logo />
           <p className="mt-3 text-slate-600">Jaa yhteiset kulut, ilman tunnuksia.</p>
@@ -39,10 +39,11 @@ export default function LandingPage() {
         <div className="hidden justify-center lg:flex">
           <div className="relative h-96 w-80">
             <img src="/illustrations/money-bag-mascot.svg" alt="" className="absolute right-0 bottom-0 h-80 w-auto" />
+            {/* Positioned to land in the mascot's raised right hand (~90%/70% into its box). */}
             <img
               src="/illustrations/expense-receipt.svg"
               alt=""
-              className="absolute top-0 left-2 h-52 w-auto drop-shadow-md"
+              className="absolute top-[68px] left-[210px] h-52 w-auto drop-shadow-md"
             />
             <img src="/illustrations/coins.svg" alt="" className="absolute bottom-6 left-0 h-16 w-auto" />
           </div>
@@ -50,7 +51,7 @@ export default function LandingPage() {
         {/* eslint-enable @next/next/no-img-element */}
       </div>
 
-      <div className="mx-auto mt-12 max-w-md">
+      <div className="mx-auto mt-8 max-w-md">
         <CreateEventForm />
         <p className="mt-4 text-center text-xs text-slate-400">
           Ei rekisteröitymistä. Tapahtumaan pääsee vain sen linkin kautta, jonka saat luotuasi sen.

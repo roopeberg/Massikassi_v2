@@ -1,6 +1,6 @@
 const HEIGHTS = {
-  sm: "h-3",
-  lg: "h-6 sm:h-8",
+  sm: "h-4",
+  lg: "h-9 sm:h-11",
 } as const;
 
 /**
