@@ -24,8 +24,19 @@ async function loadEvent(hash: string) {
   }
 }
 
-export default async function EventPage({ params }: { params: Promise<{ hash: string }> }) {
+export default async function EventPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ hash: string }>;
+  // ?kuka=Nimi — a personal link that pre-selects "Nimi" in the balance
+  // summary so their own transfer surfaces first. Just a display default,
+  // not authentication: anyone with the base event link can still open it
+  // and pick any name themselves.
+  searchParams: Promise<{ kuka?: string }>;
+}) {
   const { hash } = await params;
+  const { kuka } = await searchParams;
   const event = await loadEvent(hash);
-  return <EventClient hash={hash} initialEvent={event} />;
+  return <EventClient hash={hash} initialEvent={event} initialWho={kuka} />;
 }

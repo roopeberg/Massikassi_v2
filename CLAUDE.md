@@ -157,6 +157,33 @@ this event's link" action for when a link leaks, and the email field
 either getting wired up for real or removed (see below — it currently does
 nothing).
 
+### Sharing a resolve summary
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+User wanted a way to send people their settlement clearly, asked what the
+safest/cheapest channel would be. Explicitly steered away from email/SMS
+sending: both need collecting contact info for every user (not just the
+creator) and a paid third-party service that sees names + amounts —
+directly against this project's "no third party, minimal data" stance.
+Landed on: nothing is sent by the app at all — a human copies/shares text
+themselves, same as they already share the event link.
+
+`BalancePanel` now has: a "Kuka olet?" picker that reorders the copy text
+so that person's own transfers come first, separate from "muun potin
+tilanne" (see `buildSummaryText`); a "Kopioi yhteenveto" clipboard button;
+a "Jaa" button using the native Web Share API where available (feature-
+detected, hidden otherwise — mobile browsers mostly); and a personal link
+(`?kuka=Nimi` query param on the same event URL, handled in
+`event/[hash]/page.tsx`) that pre-selects that person when they open it
+themselves, no extra route or schema needed. The query param is a display
+default only, not access control — the base link already grants full
+access to anyone who has it.
+
+Verified end-to-end: the picker reorders the copy text correctly, the
+personal-link button generates the right URL, and opening that URL
+pre-selects the right person.
+
 ### Event lifetime & delete
 - **Status:** ✅ Completed
 - **Last updated:** 2026-08-27

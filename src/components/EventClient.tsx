@@ -17,7 +17,15 @@ async function parseErrorMessage(res: Response): Promise<string> {
   }
 }
 
-export function EventClient({ hash, initialEvent }: { hash: string; initialEvent: EventInfo }) {
+export function EventClient({
+  hash,
+  initialEvent,
+  initialWho,
+}: {
+  hash: string;
+  initialEvent: EventInfo;
+  initialWho?: string;
+}) {
   const [name, setName] = useState(initialEvent.name);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(initialEvent.name);
@@ -123,7 +131,7 @@ export function EventClient({ hash, initialEvent }: { hash: string; initialEvent
       */}
       <div className="grid gap-6 md:grid-cols-3">
         <div className="order-1 md:order-none md:col-start-3 md:row-start-1">
-          <BalancePanel payments={payments} />
+          <BalancePanel payments={payments} users={users} eventName={name} hash={hash} initialWho={initialWho} />
         </div>
 
         <div className="order-2 md:order-none space-y-4 md:col-span-2 md:col-start-1 md:row-start-1 md:row-span-2">
