@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Avatar } from "./Avatar";
 import { MAX_GIF_BYTES, MAX_GIF_DIMENSION } from "@/lib/gif-constraints";
 import type { EventPayment, EventUser } from "@/lib/types";
 
@@ -13,6 +14,10 @@ export interface PaymentFormValues {
 }
 
 const MAX_GIF_MB = MAX_GIF_BYTES / 1024 / 1024;
+
+const FIELD =
+  "h-12 w-full rounded-2xl border border-line bg-surface-3 px-4 text-[15px] text-ink placeholder:text-ink-muted";
+const LABEL = "block text-[13px] font-medium text-ink-muted";
 
 export function PaymentForm({
   users,
@@ -82,8 +87,8 @@ export function PaymentForm({
   // Chip-style selectable pill instead of a bare checkbox — a name-length
   // label is too small a tap target on a phone, this is the whole pill.
   function chipClass(checked: boolean) {
-    return `inline-flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
-      checked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 active:bg-slate-100"
+    return `inline-flex h-11 cursor-pointer items-center gap-2 rounded-full py-0 pr-4 pl-2 text-[14.5px] transition-colors select-none ${
+      checked ? "bg-accent font-semibold text-on-accent" : "bg-surface-3 text-ink-soft"
     }`;
   }
 
@@ -122,54 +127,47 @@ export function PaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-700">{initial ? "Muokkaa maksua" : "Uusi maksu"}</h3>
-      {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-[22px] border border-line bg-surface p-6">
+      <h3 className="font-display text-xl font-semibold">{initial ? "Muokkaa maksua" : "Uusi maksu"}</h3>
 
-      <div>
-        <label className="block text-xs font-medium text-slate-600">Kuvaus</label>
-        <input
-          required
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Esim. Ruokakauppa"
-          className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
-        />
-      </div>
+      {error && (
+        <p className="rounded-2xl bg-negative-wash px-4 py-3 text-sm font-medium text-negative">{error}</p>
+      )}
 
-      <div>
-        <label className="block text-xs font-medium text-slate-600">Summa</label>
-        <input
-          required
-          inputMode="decimal"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0.00"
-          className="mt-1 w-32 rounded border border-slate-300 px-2 py-1 text-sm"
-        />
-      </div>
+      <div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
+        <div className="space-y-1.5">
+          <label className={LABEL} htmlFor="payment-description">
+            Kuvaus
+          </label>
+          <input
+            id="payment-description"
+            required
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Esim. Ruokakauppa"
+            className={FIELD}
+          />
+        </div>
 
-      <div>
-        <label className="block text-xs font-medium text-slate-600">
-          GIF (valinnainen, max {MAX_GIF_MB}MB, {MAX_GIF_DIMENSION}×{MAX_GIF_DIMENSION}px)
-        </label>
-        {initial?.pictureFilename && !gifRemoved && !gif && (
-          <div className="mt-1 flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset */}
-            <img src={`/api/uploads/${initial.pictureFilename}`} alt="" className="h-16 w-16 rounded object-cover" />
-            <button type="button" onClick={() => setGifRemoved(true)} className="text-sm text-red-600 underline">
-              Poista GIF
-            </button>
-          </div>
-        )}
-        <input type="file" accept="image/gif" onChange={handleGifChange} className="mt-1 block text-sm" />
-        {gif && <p className="mt-1 text-xs text-slate-500">{gif.name} ({(gif.size / 1024).toFixed(0)} KB)</p>}
-        {gifError && <p className="mt-1 text-xs text-red-700">{gifError}</p>}
+        <div className="space-y-1.5">
+          <label className={LABEL} htmlFor="payment-amount">
+            Summa (€)
+          </label>
+          <input
+            id="payment-amount"
+            required
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0,00"
+            className={`${FIELD} font-display text-lg font-bold tabular-nums`}
+          />
+        </div>
       </div>
 
       <fieldset>
-        <legend className="text-xs font-medium text-slate-600">Kuka maksoi</legend>
-        <div className="mt-1 flex flex-wrap gap-2">
+        <legend className={LABEL}>Kuka maksoi</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
           {users.map((u) => (
             <label key={u.id} className={chipClass(payerIds.has(u.id))}>
               <input
@@ -178,6 +176,7 @@ export function PaymentForm({
                 checked={payerIds.has(u.id)}
                 onChange={() => toggle(payerIds, setPayerIds, u.id)}
               />
+              <Avatar name={u.name} size={28} />
               {u.name}
             </label>
           ))}
@@ -185,17 +184,17 @@ export function PaymentForm({
       </fieldset>
 
       <fieldset>
-        <legend className="flex items-center gap-2 text-xs font-medium text-slate-600">
+        <legend className={`${LABEL} flex items-center gap-3`}>
           Kenen kesken jaetaan
           <button
             type="button"
-            className="text-slate-500 underline"
+            className="font-semibold text-accent-ink underline underline-offset-2"
             onClick={() => setSharerIds(sharerIds.size === users.length ? new Set() : new Set(users.map((u) => u.id)))}
           >
             {sharerIds.size === users.length ? "Tyhjennä" : "Valitse kaikki"}
           </button>
         </legend>
-        <div className="mt-1 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           {users.map((u) => (
             <label key={u.id} className={chipClass(sharerIds.has(u.id))}>
               <input
@@ -204,21 +203,53 @@ export function PaymentForm({
                 checked={sharerIds.has(u.id)}
                 onChange={() => toggle(sharerIds, setSharerIds, u.id)}
               />
+              <Avatar name={u.name} size={28} />
               {u.name}
             </label>
           ))}
         </div>
       </fieldset>
 
-      <div className="flex gap-2">
+      <div className="space-y-2">
+        <span className={LABEL}>
+          GIF (valinnainen, max {MAX_GIF_MB}MB, {MAX_GIF_DIMENSION}×{MAX_GIF_DIMENSION}px)
+        </span>
+        {initial?.pictureFilename && !gifRemoved && !gif && (
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset */}
+            <img src={`/api/uploads/${initial.pictureFilename}`} alt="" className="h-16 w-16 rounded-2xl object-cover" />
+            <button type="button" onClick={() => setGifRemoved(true)} className="text-sm font-medium text-negative underline">
+              Poista GIF
+            </button>
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/gif"
+          onChange={handleGifChange}
+          className="block w-full text-sm text-ink-muted file:mr-3 file:h-11 file:rounded-full file:border-0 file:bg-surface-3 file:px-4 file:text-sm file:font-semibold file:text-ink"
+        />
+        {gif && (
+          <p className="text-xs text-ink-muted">
+            {gif.name} ({(gif.size / 1024).toFixed(0)} KB)
+          </p>
+        )}
+        {gifError && <p className="text-xs text-negative">{gifError}</p>}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          className="h-12 rounded-full bg-btn-bg px-6 text-[15px] font-bold text-btn-fg disabled:opacity-50"
         >
           Tallenna
         </button>
-        <button type="button" onClick={onCancel} className="rounded px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-12 rounded-full border border-line px-6 text-[15px] font-medium text-ink-soft"
+        >
           Peruuta
         </button>
       </div>

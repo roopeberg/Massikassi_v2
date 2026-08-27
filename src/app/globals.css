@@ -1,26 +1,144 @@
 @import "tailwindcss";
 
+/*
+  Colour tokens traced from the "Massikassi — kolme suuntaa" design canvas,
+  direction B (Reissukassa): `ReissuTapahtuma` for the dark values and
+  `ReissuVaalea` for the light ones. Components reference tokens only — no raw
+  hex outside this file — so both themes stay in sync by construction.
+
+  Each token is a `light-dark()` pair resolved from the `color-scheme` in
+  effect, so the default (`light dark`) follows the reader's OS preference with
+  no JavaScript at all. ThemeToggle overrides it by setting `data-theme` on
+  <html>, which pins `color-scheme` and flips every token with it — native form
+  controls, scrollbars and focus rings included, for free.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+
+  --canvas: light-dark(#f7f4ee, #12141c);
+  --surface: light-dark(#ffffff, #1a1e2a); /* cards */
+  --surface-2: light-dark(#ffffff, #1e2230); /* nav pills */
+  --surface-3: light-dark(#f5f2eb, #242a38); /* chips, icon buttons, track */
+  --line: light-dark(#e4dfd5, #262c3a);
+
+  --ink: light-dark(#14161d, #f4f2ee);
+  --ink-soft: light-dark(#5b6070, #9aa1b0);
+  --ink-muted: light-dark(#6a6f7d, #8a8f9d);
+  /* The artboard's light #8d92a0 is 2.83:1 on cream — under even the 3:1
+     threshold for icons. Darkened just enough to clear it; ink-subtle is only
+     used for the edit pencil and the separator dot (small text uses
+     ink-muted, which is AA). */
+  --ink-subtle: light-dark(#878c9b, #6b7080);
+
+  --accent: #f5b544; /* the marigold holds in both themes */
+  --accent-hover: light-dark(#e0a333, #ffc95f); /* as a *background* on hover */
+  /* Marigold as *text* is 1.65:1 on cream — unreadable. This is ReissuVaalea's
+     own link colour (its `a:hover`), the darkest gold in the design, at
+     5.81:1 on canvas. The flat marigold stays for fills, where it's fine. */
+  --accent-ink: light-dark(#8a5210, #f5b544);
+  --on-accent: light-dark(#14161d, #12141c);
+
+  /* Split because light mode needs a darker tone for text than for a fill:
+     #1f9e6b reads fine as a 6px bar but fails as 15px type on white. */
+  --positive: light-dark(#14814f, #4fd39a);
+  --positive-fill: light-dark(#14814f, #4fd39a);
+  --negative: light-dark(#c8451f, #f2653f);
+  --negative-fill: light-dark(#c8451f, #f2653f);
+  --negative-wash: light-dark(#fbeeea, #242a38); /* delete-button ground */
+
+  /* Settlement cards sit on the marigold panel and stay dark in BOTH themes —
+     in light mode they're the page's loudest element, so these invert relative
+     to canvas/ink rather than following them. */
+  --settle-card-bg: light-dark(#14161d, #12141c);
+  --settle-card-fg: light-dark(#f7f4ee, #f4f2ee);
+
+  /* The landing form is a cream "paper" card in both themes (like the
+     settlement cards are dark in both). On a dark page it needs a deep drop
+     shadow to lift off; on a cream one that reads as grime, so it softens and
+     leans on the hairline border instead. */
+  --card-shadow: light-dark(0 24px 48px -32px rgba(20, 22, 29, 0.28), 0 40px 80px -40px rgba(0, 0, 0, 0.85));
+
+  /* Primary action ("Lisää maksu"): marigold on dark, inverted on cream. */
+  --btn-bg: light-dark(#14161d, #f5b544);
+  --btn-fg: light-dark(#f5b544, #12141c);
+  /* Secondary action ("Lisää" osallistuja): the reverse of the above. */
+  --btn-alt-bg: light-dark(#14161d, #f4f2ee);
+  --btn-alt-fg: light-dark(#f7f4ee, #12141c);
+
+  /* Per-person avatar colours, assigned by position in the user list. Disc
+     colours are the artboards' exactly (the light set is the darker one).
+     The *initial* is the contrasting one of ink/white rather than always the
+     artboard's choice: on a phone the settlement rows show the disc with no
+     name beside it, so the letter is the only identifier, and white on the
+     orange disc is 2.9:1. Where the artboard's own choice passes (the
+     periwinkle disc in light mode) it's kept. */
+  --avatar-1-bg: #f5b544;
+  --avatar-1-fg: light-dark(#14161d, #12141c); /* 9.96 / 10.13 */
+  --avatar-2-bg: light-dark(#e0522c, #f2653f);
+  --avatar-2-fg: light-dark(#14161d, #12141c); /* 4.66 / 5.87 */
+  --avatar-3-bg: light-dark(#1f9e6b, #4fd39a);
+  --avatar-3-fg: light-dark(#14161d, #12141c); /* 5.30 / 9.73 */
+  --avatar-4-bg: light-dark(#5a68d6, #7d8cf5);
+  --avatar-4-fg: light-dark(#ffffff, #12141c); /* 4.79 / 6.08 */
 }
 
+/* The toggle's two explicit choices. Pinning `color-scheme` is all that's
+   needed — every token above resolves from it. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* `inline` so the utilities emit var() and follow the theme at runtime,
+   instead of baking in whatever :root resolved to at build time. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+
+  --color-positive: var(--positive);
+  --color-positive-fill: var(--positive-fill);
+  --color-negative: var(--negative);
+  --color-negative-fill: var(--negative-fill);
+  --color-negative-wash: var(--negative-wash);
+
+  --color-settle-card-bg: var(--settle-card-bg);
+  --color-settle-card-fg: var(--settle-card-fg);
+
+  --color-btn-bg: var(--btn-bg);
+  --color-btn-fg: var(--btn-fg);
+  --color-btn-alt-bg: var(--btn-alt-bg);
+  --color-btn-alt-fg: var(--btn-alt-fg);
+
+  --font-sans: var(--font-space-grotesk);
+  --font-display: var(--font-bricolage);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*
+  In @layer base, not bare. An unlayered `body` rule outranks every Tailwind
+  utility regardless of specificity (utilities live in @layer utilities, and
+  unlayered CSS always wins over layered), which is how the create-next-app
+  scaffold silently overrode the body's font and colours.
+*/
+@layer base {
+  body {
+    background: var(--canvas);
+    color: var(--ink);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

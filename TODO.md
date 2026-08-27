@@ -132,6 +132,86 @@ flakiness unrelated to the app; static checks (`tsc`, `eslint`) are clean
 and the form's submit wiring itself is unchanged from the previously
 verified-working version (only its JSX/classes changed).
 
+The decorative nav toggle noted above is now a real one — see
+[Event page + theming](#event-page-reissukassa--light-dark-theming).
+
+### Event page (Reissukassa) + light/dark theming
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+The landing page had been rebuilt from the design canvas but the event page
+— the actual app — was still the original slate/white scaffold, which
+clashed badly with it. Rebuilt from the same canvas
+("Massikassi — kolme suuntaa", direction **B · Reissukassa**), which holds a
+desktop artboard (`ReissuTapahtuma`), a 390px one
+(`MobiiliReissuTapahtuma`), and a light variant (`ReissuVaalea`).
+
+**Layout.** The settlement panel is now the loudest thing on the page: a
+full-width marigold band under the title, one dark card per transfer with a
+40px amount — the canvas's whole argument for this direction is that "kuka
+maksaa kenelle" is the question people open the link to answer. Below it the
+artboard's 12-column split (payments left, Saldot + Osallistujat +
+Tapahtuman elinikä in a right rail). Participants get a coloured initial
+disc (`Avatar.tsx`) throughout.
+
+The phone artboard is a genuinely different layout, not a reflow, and is
+implemented as such: settlement rows collapse to `disc → disc` plus the
+amount with no names, Saldot drops its bars, payment rows shrink and hide
+Muokkaa/Poista until the row is tapped, and the "Lisää maksu" button detaches
+into a sticky bottom bar. First attempt just let the desktop layout wrap —
+the user's words were "the mobile page for an event is pretty much wrong",
+and they were right.
+
+**Theming.** Colours are semantic tokens in `globals.css`, each a
+`light-dark()` pair, so `color-scheme: light dark` follows the reader's OS
+with no JS. `ThemeToggle` (the artboard's round nav control, and the thing
+the landing page had been faking) cycles follow-OS → light → dark by setting
+`data-theme` on `<html>`, which pins `color-scheme` and flips every token
+with it — native selects, scrollbars and focus rings included. The choice
+persists in `localStorage` and is re-applied pre-paint by an inline script in
+`layout.tsx`. Verified in the compiled CSS that Lightning CSS lowers
+`light-dark()` into its own polyfill and applies it to the `[data-theme]`
+selectors too, not just the media query, so the toggle works without native
+support. The landing page and 404 moved onto the same tokens, so the whole
+app themes together; the dark rendering is byte-identical to the approved
+artboard, since the tokens' dark values *are* its hexes.
+
+Two components deliberately stay one fixed colour in both themes, because
+the artboards do: the settlement cards (always dark — in light mode they're
+the page's loudest element) and the landing's cream form card (which also
+carries `color-scheme: light` so its native controls match it rather than
+the page).
+
+**Deviations from the artboards**, all for contrast, all measured:
+- Marigold as *text* is 1.65:1 on cream. Added `--accent-ink`, which in light
+  mode is `#8a5210` — ReissuVaalea's own link colour — at 5.81:1. Marigold
+  still fills every surface it filled before.
+- The light `--ink-subtle` (`#8d92a0`) was 2.83:1, under even the 3:1 icon
+  threshold; darkened to `#878c9b`. Small text uses `ink-muted` (AA).
+- Avatar *disc* colours are the artboards' exactly, but the initial inside is
+  whichever of ink/white passes: white on the orange disc was 2.9:1, and on a
+  phone that disc is the only identifier in a settlement row.
+Everything else is AA (4.5:1), or 3:1 for icons. Two values sit just under
+AA against `canvas` — `positive` 4.47:1 and `negative` 4.42:1 — but both are
+only ever rendered on `surface`, where they pass; left at the designer's
+values rather than nudged for a case that doesn't occur.
+
+**Fixed along the way:** a hydration mismatch that had been logging on every
+event page (`navigator.share` read during render — now `useSyncExternalStore`
+with a server snapshot), a horizontal overflow on mobile (a `display:grid`
+with no explicit column sizes its auto track to max-content and pushes past
+the viewport), and the dev-only CSP `eval()` error in the corner of the
+overlay (`next.config.ts` now adds `'unsafe-eval'` in development only —
+production's policy is unchanged and was verified against a real
+`next start`).
+
+Verified against a real browser over CDP at 390px and 1280px in both themes
+and with the OS preference emulated both ways: the toggle cycles and
+persists, tapping a payment row reveals its actions, the add-payment form
+opens and the sticky bar yields to it, the document never exceeds the
+viewport width, and the console is clean. `npm test` / `typecheck` / `lint` /
+`build` all pass.
+
 ### i18n
 - **Status:** ⛔ Descoped from MVP
 - **Last updated:** 2026-08-26
@@ -259,6 +339,21 @@ anonymous — collecting contact info nobody ever sees used for anything
 just sits there as unnecessary risk. Also means there is no phone number
 field either; one was discussed earlier (for a possible Siirto-payment
 helper) but never actually built, so there was nothing to remove there.
+
+### Local dev setup ("how do I run this")
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+Getting from a fresh clone to a running app was undocumented guesswork: the
+README told you to fill in `DATABASE_URL` yourself and bring your own Postgres,
+`docker-compose.yml` was deploy-only (Postgres not reachable from the host), and
+the installed Node (21) was too old for the test runner. Now it's
+`cp .env.example .env && npm run setup && npm run dev` — see CLAUDE.md's
+"Local development". Node pinned via `.tool-versions`, dev-only port publishing
+in `docker-compose.dev.yml`, `.env.example` defaults that actually work as-is,
+and `setup`/`typecheck`/`db:up`/`db:stop`/`db:psql` npm scripts. Verified end
+to end: create event → event page renders, plus `npm test` / `typecheck` /
+`lint` all clean.
 
 ### Editing a payment's date
 - **Status:** ⛔ Not built

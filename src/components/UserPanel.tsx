@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Avatar } from "./Avatar";
 import type { EventUser } from "@/lib/types";
 
 export function UserPanel({
@@ -45,30 +46,42 @@ export function UserPanel({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-700">Käyttäjät</h2>
-      <ul className="mt-2 space-y-1 text-sm">
+    <section className="rounded-[22px] border border-line bg-surface p-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-xl font-semibold">Osallistujat</h2>
+        <span className="text-[13px] text-ink-muted">{users.length}</span>
+      </div>
+
+      <ul className="mt-4 flex flex-wrap gap-2">
         {users.map((u) => (
-          <li key={u.id}>{u.name}</li>
+          <li
+            key={u.id}
+            className="flex h-11 items-center gap-2 rounded-full bg-surface-3 py-0 pr-4 pl-2 text-[14.5px]"
+          >
+            <Avatar name={u.name} size={28} />
+            {u.name}
+          </li>
         ))}
       </ul>
-      <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+
+      <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Uusi nimi"
           required
-          className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+          className="h-12 min-w-0 flex-1 rounded-full border border-line bg-surface-3 px-4.5 text-[14.5px] text-ink placeholder:text-ink-muted"
         />
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-slate-900 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+          className="h-12 shrink-0 rounded-full bg-btn-alt-bg px-5.5 text-[14.5px] font-bold text-btn-alt-fg disabled:opacity-50"
         >
           Lisää
         </button>
       </form>
-      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
-    </div>
+
+      {error && <p className="mt-2 text-xs text-negative">{error}</p>}
+    </section>
   );
 }

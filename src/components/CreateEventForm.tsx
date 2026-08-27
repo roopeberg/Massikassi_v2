@@ -4,8 +4,14 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { RetentionSelect } from "./RetentionSelect";
 
+/*
+ * This card is deliberately the same warm "paper" in both themes, so its
+ * insides stay literal cream-and-ink rather than going through the canvas
+ * tokens. Only the card's own edge and shadow are theme-aware — see
+ * --card-shadow in globals.css.
+ */
 const fieldClass =
-  "h-[52px] w-full rounded-2xl bg-[#efeae0] px-4 text-[15px] text-[#12141c] placeholder:text-[#9aa1b0] focus:outline-2 focus:outline-[#f5b544]";
+  "h-[52px] w-full rounded-2xl bg-[#efeae0] px-4 text-[15px] text-[#12141c] placeholder:text-[#6f7482] focus:outline-2 focus:outline-[#8a5210]";
 
 export function CreateEventForm() {
   const router = useRouter();
@@ -53,7 +59,10 @@ export function CreateEventForm() {
     <form
       id="luo-tapahtuma"
       onSubmit={handleSubmit}
-      className="rounded-[28px] bg-[#fbf7f0] p-8 text-[#12141c] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]"
+      /* color-scheme:light so the native controls inside this card (inputs,
+         the select's dropdown) render light too — the card is cream even when
+         the page around it is dark. */
+      className="rounded-[28px] border border-line bg-[#fbf7f0] p-8 text-[#12141c] shadow-[var(--card-shadow)] [color-scheme:light]"
     >
       <div className="font-[family-name:var(--font-bricolage)] text-2xl font-semibold tracking-tight">
         Aloita tästä
@@ -102,7 +111,11 @@ export function CreateEventForm() {
           </p>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
-            <RetentionSelect value={retentionChoice} onChange={setRetentionChoice} />
+            <RetentionSelect
+              value={retentionChoice}
+              onChange={setRetentionChoice}
+              className="h-11 rounded-full border border-[#d9d3c6] bg-[#efeae0] px-4 text-sm text-[#12141c]"
+            />
             <button type="button" onClick={() => setEditingRetention(false)} className="underline">
               Valmis
             </button>

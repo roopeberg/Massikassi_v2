@@ -5,6 +5,13 @@ import type { NextConfig } from "next";
 // Next's middleware, which is a bigger change than this pass covers. This
 // still blocks framing (clickjacking) and other-origin script/object
 // injection, which is the bulk of the benefit for the size of the app.
+// React's development build uses eval() for debugging features (reconstructing
+// callstacks across environments); without 'unsafe-eval' it can't, and `next
+// dev` surfaces that as a permanent error in the dev overlay. Production React
+// never calls eval, so this widens the policy in dev only — the deployed CSP is
+// unchanged.
+const devOnlyScriptSrc = process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -12,7 +19,9 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
+      "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; " +
+      `script-src 'self' 'unsafe-inline'${devOnlyScriptSrc}; ` +
+      "base-uri 'self'; frame-ancestors 'none'; object-src 'none'",
   },
 ];
 
