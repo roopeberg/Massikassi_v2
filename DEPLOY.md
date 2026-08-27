@@ -59,6 +59,21 @@ docker compose exec -T db pg_dump -U massikassi massikassi | gzip > /path/to/bac
 Keep a few days of these somewhere off the machine (e.g. synced to another
 disk) — a single-machine setup has no redundancy if the disk fails.
 
+## Expired events
+
+Events default to a 3-month lifetime (the creator can pick "keep forever"
+instead, or flip either way later from the event page). Nothing deletes
+them on its own — `scripts/flush-expired-events.ts` has to actually be run.
+A daily cron entry alongside the backup one above:
+
+```bash
+docker compose run --rm -e DATABASE_URL=postgres://massikassi:<password>@db:5432/massikassi --entrypoint sh migrate -c "node_modules/.bin/tsx scripts/flush-expired-events.ts"
+```
+
+Run the backup cron *before* this one in the day's schedule — you want a
+copy of an event's final state before it's gone, in case someone asks about
+it after the fact.
+
 ## Things this setup does NOT give you
 
 - **No redundancy.** If the machine, its disk, or the office internet/power

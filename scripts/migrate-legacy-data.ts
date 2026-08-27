@@ -24,6 +24,11 @@
  * breaking them. It doesn't retroactively weaken anything: the point of the
  * crypto.randomBytes change was to stop generating *new* guessable hashes,
  * not to invalidate old ones.
+ *
+ * Imported events get expires_at = null (kept forever, not the 3-month
+ * default new events get) — see scripts/flush-expired-events.ts. Importing
+ * old data on purpose and then having it silently auto-delete a few months
+ * later would defeat the point of importing it.
  */
 
 import postgres from "postgres";

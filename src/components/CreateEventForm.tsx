@@ -2,12 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { RetentionSelect } from "./RetentionSelect";
 
 export function CreateEventForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [editingRetention, setEditingRetention] = useState(false);
+  const [retentionChoice, setRetentionChoice] = useState("3");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const businessRef = useRef<HTMLInputElement>(null);
@@ -20,7 +23,13 @@ export function CreateEventForm() {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, userName, email, business: businessRef.current?.value ?? "" }),
+        body: JSON.stringify({
+          name,
+          userName,
+          email,
+          retentionMonths: retentionChoice === "forever" ? null : Number(retentionChoice),
+          business: businessRef.current?.value ?? "",
+        }),
       });
       if (!res.ok) {
         setError("Tarkista tiedot ja yritä uudelleen.");
@@ -83,6 +92,24 @@ export function CreateEventForm() {
           placeholder="jotta saat linkin talteen"
           className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
         />
+      </div>
+
+      <div className="text-sm text-slate-600">
+        {!editingRetention ? (
+          <p>
+            {retentionChoice === "forever" ? "Tapahtuma säilytetään ikuisesti." : `Tapahtuma säilytetään ${retentionChoice} kk.`}{" "}
+            <button type="button" onClick={() => setEditingRetention(true)} className="text-slate-500 underline">
+              Muuta
+            </button>
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            <RetentionSelect value={retentionChoice} onChange={setRetentionChoice} />
+            <button type="button" onClick={() => setEditingRetention(false)} className="text-slate-500 underline">
+              Valmis
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Honeypot: hidden from real users via CSS, bots tend to fill every field they see in the DOM. */}

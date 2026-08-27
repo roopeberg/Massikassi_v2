@@ -11,7 +11,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "migrate:legacy": "tsx scripts/migrate-legacy-data.ts"
+    "migrate:legacy": "tsx scripts/migrate-legacy-data.ts",
+    "flush:expired": "tsx scripts/flush-expired-events.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

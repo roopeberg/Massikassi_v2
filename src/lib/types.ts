@@ -22,6 +22,8 @@ export interface EventInfo {
   name: string;
   createdBy: string;
   created: Date;
+  /** Null = kept forever. Otherwise auto-deleted once this passes. */
+  expiresAt: Date | null;
   users: EventUser[];
   payments: EventPayment[];
 }

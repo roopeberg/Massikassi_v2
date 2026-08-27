@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BalancePanel } from "./BalancePanel";
+import { EventSettingsPanel } from "./EventSettingsPanel";
 import { PaymentForm, type PaymentFormValues } from "./PaymentForm";
 import { PaymentList } from "./PaymentList";
 import { UserPanel } from "./UserPanel";
@@ -23,6 +24,7 @@ export function EventClient({ hash, initialEvent }: { hash: string; initialEvent
   const [users, setUsers] = useState(initialEvent.users);
   const [payments, setPayments] = useState<EventPayment[]>(initialEvent.payments);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [expiresAt, setExpiresAt] = useState(initialEvent.expiresAt);
 
   async function handleSaveName() {
     const trimmed = nameDraft.trim();
@@ -138,8 +140,9 @@ export function EventClient({ hash, initialEvent }: { hash: string; initialEvent
           <PaymentList payments={payments} users={users} onEdit={handleEditPayment} onDelete={handleDeletePayment} />
         </div>
 
-        <div className="order-3 md:order-none md:col-start-3 md:row-start-2">
+        <div className="order-3 md:order-none space-y-6 md:col-start-3 md:row-start-2">
           <UserPanel hash={hash} users={users} onUserAdded={(user) => setUsers((prev) => [...prev, user])} />
+          <EventSettingsPanel hash={hash} eventName={name} expiresAt={expiresAt} onExpiryChange={setExpiresAt} />
         </div>
       </div>
     </main>

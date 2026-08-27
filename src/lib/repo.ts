@@ -8,20 +8,48 @@ export class NotFoundError extends Error {}
 export class ConflictError extends Error {}
 export class ValidationError extends Error {}
 
+// Default retention for a new event unless its creator picks something else.
+const DEFAULT_RETENTION_MONTHS = 3;
+
+// Note: setMonth rolls over day-of-month overflow (e.g. Jan 31 + 1 month
+// lands in early March, not Feb 28) — a known, accepted imprecision here
+// rather than pulling in a date library for a retention estimate.
+function monthsFromNow(months: number): Date {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+
+/** null (forever) or 1-12 (months from now); undefined -> the 3-month default. */
+function resolveExpiresAt(retentionMonths: number | null | undefined): Date | null {
+  if (retentionMonths === undefined) return monthsFromNow(DEFAULT_RETENTION_MONTHS);
+  return retentionMonths === null ? null : monthsFromNow(retentionMonths);
+}
+
 async function findEventByHash(hash: string) {
   const [event] = await db.select().from(events).where(eq(events.hash, hash)).limit(1);
   if (!event) throw new NotFoundError("Event not found");
   return event;
 }
 
-export async function createEvent(input: { name: string; userName: string; email?: string }) {
+export async function createEvent(input: {
+  name: string;
+  userName: string;
+  email?: string;
+  retentionMonths?: number | null;
+}) {
   return db.transaction(async (tx) => {
     // Vanishingly unlikely to collide (128-bit random token), so we don't
     // need the original's generate-and-check-uniqueness loop.
     const hash = generateHash();
     const [event] = await tx
       .insert(events)
-      .values({ name: input.name, hash, createdBy: input.userName })
+      .values({
+        name: input.name,
+        hash,
+        createdBy: input.userName,
+        expiresAt: resolveExpiresAt(input.retentionMonths),
+      })
       .returning();
 
     await tx.insert(users).values({
@@ -74,15 +102,31 @@ export async function getEventInfo(hash: string) {
     name: event.name,
     createdBy: event.createdBy,
     created: event.created,
+    expiresAt: event.expiresAt,
     users: eventUsers.map((u) => ({ id: u.id, name: u.name })),
     payments: paymentList,
   };
 }
 
-export async function updateEventName(hash: string, name: string) {
+export async function updateEvent(hash: string, input: { name?: string; retentionMonths?: number | null }) {
   const event = await findEventByHash(hash);
-  const [updated] = await db.update(events).set({ name }).where(eq(events.id, event.id)).returning();
+
+  const patch: { name?: string; expiresAt?: Date | null } = {};
+  if (input.name !== undefined) patch.name = input.name;
+  // A chosen retention always counts from now, not from the original
+  // creation date — matches what the UI says ("N kk tästä hetkestä").
+  if (input.retentionMonths !== undefined) {
+    patch.expiresAt = input.retentionMonths === null ? null : monthsFromNow(input.retentionMonths);
+  }
+
+  const [updated] = await db.update(events).set(patch).where(eq(events.id, event.id)).returning();
   return updated;
+}
+
+export async function deleteEvent(hash: string) {
+  const event = await findEventByHash(hash);
+  // Cascades to users/payments (and payments -> dues) via the FK definitions.
+  await db.delete(events).where(eq(events.id, event.id));
 }
 
 export async function addUserToEvent(hash: string, name: string) {

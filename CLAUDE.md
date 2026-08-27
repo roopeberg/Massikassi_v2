@@ -157,6 +157,37 @@ this event's link" action for when a link leaks, and the email field
 either getting wired up for real or removed (see below — it currently does
 nothing).
 
+### Event lifetime & delete
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-27
+
+`events.expiresAt` (nullable — null means forever). New events default to a
+3-month lifetime. Retention is a `RetentionSelect` (shared component: 1-12
+months, or "Ikuisesti") — shown inline on `CreateEventForm` (collapsed to
+"Tapahtuma säilytetään N kk. Muuta" until clicked), and behind the same
+"Muuta" pattern in the event page's `EventSettingsPanel`, which shows the
+actual expiry date ("Tapahtuma säilyy 27.2.2027 asti.") rather than a
+duration once one is set. Picking a new duration always counts from *now*,
+not from the original creation date. Nothing deletes an expired event on
+its own — `scripts/flush-expired-events.ts` has to actually run (cron, see
+DEPLOY.md).
+
+Also added: a full "delete this event" action (`DELETE /api/events/[hash]`,
+cascades to users/payments/dues via the existing FKs), gated by retyping
+the event's name since there's no undo. Rate-limited at 5/10min, same as
+event creation, since it's irreversible.
+
+Verified end-to-end against the real running stack: default vs. forever
+creation, changing retention both from the create form and from the event
+page (confirmed the shown expiry date matches the chosen duration), full
+delete (confirmed the cascade actually removed the orphaned rows), and the
+flush script (dry-run + real run against a manually-expired test event,
+confirmed only that one was removed).
+
+`scripts/migrate-legacy-data.ts` imports never get an expiry (see its own
+comments) — auto-deleting data someone specifically asked to import back in
+would defeat the point.
+
 ### Email invite on event creation
 - **Status:** ⚠️ UI collects it, nothing sends it
 - **Last updated:** 2026-08-26

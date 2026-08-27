@@ -6,6 +6,10 @@ export const events = pgTable("events", {
   hash: varchar("hash", { length: 32 }).notNull().unique(),
   createdBy: text("created_by").notNull(),
   created: timestamp("created", { withTimezone: true }).notNull().defaultNow(),
+  // Null = kept forever. Otherwise the event (and everything under it, via
+  // cascade) is deleted once this passes — see scripts/flush-expired-events.ts.
+  // Defaults to 3 months from creation unless the creator picks "forever".
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
 });
 
 export const users = pgTable(
