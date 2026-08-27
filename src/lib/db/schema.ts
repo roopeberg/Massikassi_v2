@@ -46,6 +46,9 @@ export const payments = pgTable(
     // original api_payment.deleted + api_payment.original columns).
     deleted: boolean("deleted").notNull().default(false),
     originalId: integer("original_id"),
+    // Filename under the uploads volume (see lib/gif.ts), null if none
+    // attached. Never a URL to an external host — see lib/gif.ts for why.
+    pictureFilename: varchar("picture_filename", { length: 64 }),
   },
   (table) => [
     foreignKey({ columns: [table.eventId], foreignColumns: [events.id] }).onDelete("cascade"),

@@ -2,6 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "./db/client";
 import { dues, events, payments, users } from "./db/schema";
 import { dividePayment } from "./domain/divide";
+import { deleteGif } from "./gif";
 import { generateHash } from "./hash";
 
 export class NotFoundError extends Error {}
@@ -71,6 +72,7 @@ export async function getEventInfo(hash: string) {
       description: payments.description,
       amount: payments.amount,
       created: payments.created,
+      pictureFilename: payments.pictureFilename,
       dueAmount: dues.amount,
       payer: dues.payer,
       userId: dues.userId,
@@ -84,12 +86,26 @@ export async function getEventInfo(hash: string) {
 
   const paymentsById = new Map<
     number,
-    { id: number; description: string; amount: number; created: Date; sharers: { id: number; name: string; payer: boolean; amount: number }[] }
+    {
+      id: number;
+      description: string;
+      amount: number;
+      created: Date;
+      pictureFilename: string | null;
+      sharers: { id: number; name: string; payer: boolean; amount: number }[];
+    }
   >();
   for (const row of rows) {
     let payment = paymentsById.get(row.paymentId);
     if (!payment) {
-      payment = { id: row.paymentId, description: row.description, amount: Number(row.amount), created: row.created, sharers: [] };
+      payment = {
+        id: row.paymentId,
+        description: row.description,
+        amount: Number(row.amount),
+        created: row.created,
+        pictureFilename: row.pictureFilename,
+        sharers: [],
+      };
       paymentsById.set(row.paymentId, payment);
     }
     payment.sharers.push({ id: row.userId, name: row.userName, payer: row.payer, amount: Number(row.dueAmount) });
@@ -170,6 +186,15 @@ export async function editPayment(hash: string, originalId: number, input: Payme
     if (!original) throw new NotFoundError("Payment not found");
 
     const result = await insertPayment(tx, event.id, input, originalId, createdAt);
+
+    // Carry the picture over to the new row so editing a payment doesn't
+    // silently drop it — the caller can still explicitly replace/remove it
+    // right after via setPaymentPicture/clearPaymentPicture.
+    if (original.pictureFilename) {
+      await tx.update(payments).set({ pictureFilename: original.pictureFilename }).where(eq(payments.id, result.id));
+      result.pictureFilename = original.pictureFilename;
+    }
+
     await tx.update(payments).set({ deleted: true }).where(eq(payments.id, originalId));
     return result;
   });
@@ -215,6 +240,9 @@ async function insertPayment(tx: Tx, eventId: number, input: PaymentInput, origi
     description: payment.description,
     amount: Number(payment.amount),
     created: payment.created,
+    // A new (or freshly-edited) payment never has one yet — attached
+    // afterward via setPaymentPicture, since it needs the payment's id.
+    pictureFilename: null as string | null,
     sharers: divided.map((d) => ({ id: d.id, name: d.name, payer: d.payer, amount: d.amount })),
   };
 }
@@ -229,4 +257,39 @@ export async function deletePayment(hash: string, paymentId: number) {
   if (!payment) throw new NotFoundError("Payment not found");
 
   await db.delete(payments).where(eq(payments.id, paymentId));
+  if (payment.pictureFilename) await deleteGif(payment.pictureFilename);
+}
+
+/**
+ * Attaches (or replaces) a payment's GIF. The caller has already validated
+ * and saved the file (lib/gif.ts). Deliberately does NOT delete a
+ * previously-referenced file here — a soft-deleted edit-history row for the
+ * same payment (see editPayment) may still point at it. Only deletePayment
+ * physically removes a file, when the row referencing it is gone for good;
+ * replacing/removing a picture otherwise can leave an orphaned file on disk,
+ * an accepted tradeoff for a small self-hosted app rather than tracking
+ * cross-row reference counts.
+ */
+export async function setPaymentPicture(hash: string, paymentId: number, filename: string) {
+  const event = await findEventByHash(hash);
+  const [payment] = await db
+    .select()
+    .from(payments)
+    .where(and(eq(payments.id, paymentId), eq(payments.eventId, event.id)))
+    .limit(1);
+  if (!payment) throw new NotFoundError("Payment not found");
+
+  await db.update(payments).set({ pictureFilename: filename }).where(eq(payments.id, paymentId));
+}
+
+export async function clearPaymentPicture(hash: string, paymentId: number) {
+  const event = await findEventByHash(hash);
+  const [payment] = await db
+    .select()
+    .from(payments)
+    .where(and(eq(payments.id, paymentId), eq(payments.eventId, event.id)))
+    .limit(1);
+  if (!payment) throw new NotFoundError("Payment not found");
+
+  await db.update(payments).set({ pictureFilename: null }).where(eq(payments.id, paymentId));
 }

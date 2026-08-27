@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { MAX_GIF_BYTES, MAX_GIF_DIMENSION } from "@/lib/gif-constraints";
 import type { EventPayment, EventUser } from "@/lib/types";
 
 export interface PaymentFormValues {
   description: string;
   amount: number;
   dues: { id: number; payer: boolean }[];
+  /** undefined = leave as-is, null = remove, File = replace/attach. */
+  gif?: File | null;
 }
+
+const MAX_GIF_MB = MAX_GIF_BYTES / 1024 / 1024;
 
 export function PaymentForm({
   users,
@@ -29,6 +34,43 @@ export function PaymentForm({
   const [sharerIds, setSharerIds] = useState<Set<number>>(initialSharerIds);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [gif, setGif] = useState<File | null>(null);
+  const [gifRemoved, setGifRemoved] = useState(false);
+  const [gifError, setGifError] = useState<string | null>(null);
+
+  function handleGifChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setGifError(null);
+    setGif(null);
+    if (!file) return;
+
+    if (file.type !== "image/gif") {
+      setGifError("Vain GIF-tiedostot käyvät.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_GIF_BYTES) {
+      setGifError(`GIF on liian iso (max ${MAX_GIF_MB}MB).`);
+      e.target.value = "";
+      return;
+    }
+
+    // Dimension check needs decoding the image — the server re-checks this
+    // authoritatively regardless, this is just faster feedback.
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      if (img.width > MAX_GIF_DIMENSION || img.height > MAX_GIF_DIMENSION) {
+        setGifError(`GIF on liian suurikokoinen (max ${MAX_GIF_DIMENSION}×${MAX_GIF_DIMENSION}px).`);
+        e.target.value = "";
+        return;
+      }
+      setGif(file);
+      setGifRemoved(false);
+    };
+    img.src = url;
+  }
 
   function toggle(set: Set<number>, setSet: (s: Set<number>) => void, id: number) {
     const next = new Set(set);
@@ -69,7 +111,12 @@ export function PaymentForm({
     ];
 
     setSubmitting(true);
-    const errorMessage = await onSubmit({ description: description.trim(), amount: parsedAmount, dues });
+    const errorMessage = await onSubmit({
+      description: description.trim(),
+      amount: parsedAmount,
+      dues,
+      gif: gif ?? (gifRemoved ? null : undefined),
+    });
     setSubmitting(false);
     if (errorMessage) setError(errorMessage);
   }
@@ -100,6 +147,24 @@ export function PaymentForm({
           placeholder="0.00"
           className="mt-1 w-32 rounded border border-slate-300 px-2 py-1 text-sm"
         />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-slate-600">
+          GIF (valinnainen, max {MAX_GIF_MB}MB, {MAX_GIF_DIMENSION}×{MAX_GIF_DIMENSION}px)
+        </label>
+        {initial?.pictureFilename && !gifRemoved && !gif && (
+          <div className="mt-1 flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset */}
+            <img src={`/api/uploads/${initial.pictureFilename}`} alt="" className="h-16 w-16 rounded object-cover" />
+            <button type="button" onClick={() => setGifRemoved(true)} className="text-sm text-red-600 underline">
+              Poista GIF
+            </button>
+          </div>
+        )}
+        <input type="file" accept="image/gif" onChange={handleGifChange} className="mt-1 block text-sm" />
+        {gif && <p className="mt-1 text-xs text-slate-500">{gif.name} ({(gif.size / 1024).toFixed(0)} KB)</p>}
+        {gifError && <p className="mt-1 text-xs text-red-700">{gifError}</p>}
       </div>
 
       <fieldset>

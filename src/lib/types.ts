@@ -15,6 +15,8 @@ export interface EventPayment {
   description: string;
   amount: number;
   created: Date;
+  /** Served from /api/uploads/[filename] — see lib/gif.ts. */
+  pictureFilename: string | null;
   sharers: PaymentSharer[];
 }
 

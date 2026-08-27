@@ -43,14 +43,24 @@ function PaymentRow({
   return (
     <li className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="font-medium">
-            {payment.amount.toLocaleString("fi-FI", { minimumFractionDigits: 2 })} € » {payment.description}
-          </p>
-          <p className="text-xs text-slate-500">{formatDate(payment.created)}</p>
-          <p className="mt-1 text-sm text-slate-600">
-            {payers.map((p) => p.name).join(" & ")} → {sharers.map((s) => s.name).join(", ")}
-          </p>
+        <div className="flex items-start gap-3">
+          {payment.pictureFilename && (
+            // eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset
+            <img
+              src={`/api/uploads/${payment.pictureFilename}`}
+              alt=""
+              className="h-12 w-12 shrink-0 rounded object-cover"
+            />
+          )}
+          <div>
+            <p className="font-medium">
+              {payment.amount.toLocaleString("fi-FI", { minimumFractionDigits: 2 })} € » {payment.description}
+            </p>
+            <p className="text-xs text-slate-500">{formatDate(payment.created)}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              {payers.map((p) => p.name).join(" & ")} → {sharers.map((s) => s.name).join(", ")}
+            </p>
+          </div>
         </div>
         <div className="flex shrink-0 gap-1 text-sm">
           <button
