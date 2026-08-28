@@ -83,7 +83,9 @@ export function PaymentForm({
   // label is too small a tap target on a phone, this is the whole pill.
   function chipClass(checked: boolean) {
     return `inline-flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
-      checked ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 active:bg-slate-100"
+      checked
+        ? "border-[#f5b544] bg-[#f5b544] text-[#12141c]"
+        : "border-white/15 text-[#f4f2ee] active:bg-white/10"
     }`;
   }
 
@@ -122,53 +124,55 @@ export function PaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-700">{initial ? "Muokkaa maksua" : "Uusi maksu"}</h3>
-      {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-[#1a1e2a] p-4">
+      <h3 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">
+        {initial ? "Muokkaa maksua" : "Uusi maksu"}
+      </h3>
+      {error && <p className="rounded-xl bg-[#f2653f]/15 px-3 py-2 text-sm text-[#ff9d84]">{error}</p>}
 
       <div>
-        <label className="block text-xs font-medium text-slate-600">Kuvaus</label>
+        <label className="block text-xs font-medium text-[#9aa1b0]">Kuvaus</label>
         <input
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Esim. Ruokakauppa"
-          className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+          className="mt-1 w-full rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-600">Summa</label>
+        <label className="block text-xs font-medium text-[#9aa1b0]">Summa</label>
         <input
           required
           inputMode="decimal"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
-          className="mt-1 w-32 rounded border border-slate-300 px-2 py-1 text-sm"
+          className="mt-1 w-32 rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-600">
+        <label className="block text-xs font-medium text-[#9aa1b0]">
           GIF (valinnainen, max {MAX_GIF_MB}MB, {MAX_GIF_DIMENSION}×{MAX_GIF_DIMENSION}px)
         </label>
         {initial?.pictureFilename && !gifRemoved && !gif && (
           <div className="mt-1 flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset */}
-            <img src={`/api/uploads/${initial.pictureFilename}`} alt="" className="h-16 w-16 rounded object-cover" />
-            <button type="button" onClick={() => setGifRemoved(true)} className="text-sm text-red-600 underline">
+            <img src={`/api/uploads/${initial.pictureFilename}`} alt="" className="h-16 w-16 rounded-lg object-cover" />
+            <button type="button" onClick={() => setGifRemoved(true)} className="text-sm text-[#ff9d84] underline">
               Poista GIF
             </button>
           </div>
         )}
-        <input type="file" accept="image/gif" onChange={handleGifChange} className="mt-1 block text-sm" />
-        {gif && <p className="mt-1 text-xs text-slate-500">{gif.name} ({(gif.size / 1024).toFixed(0)} KB)</p>}
-        {gifError && <p className="mt-1 text-xs text-red-700">{gifError}</p>}
+        <input type="file" accept="image/gif" onChange={handleGifChange} className="mt-1 block text-sm text-[#9aa1b0]" />
+        {gif && <p className="mt-1 text-xs text-[#9aa1b0]">{gif.name} ({(gif.size / 1024).toFixed(0)} KB)</p>}
+        {gifError && <p className="mt-1 text-xs text-[#ff9d84]">{gifError}</p>}
       </div>
 
       <fieldset>
-        <legend className="text-xs font-medium text-slate-600">Kuka maksoi</legend>
+        <legend className="text-xs font-medium text-[#9aa1b0]">Kuka maksoi</legend>
         <div className="mt-1 flex flex-wrap gap-2">
           {users.map((u) => (
             <label key={u.id} className={chipClass(payerIds.has(u.id))}>
@@ -185,11 +189,11 @@ export function PaymentForm({
       </fieldset>
 
       <fieldset>
-        <legend className="flex items-center gap-2 text-xs font-medium text-slate-600">
+        <legend className="flex items-center gap-2 text-xs font-medium text-[#9aa1b0]">
           Kenen kesken jaetaan
           <button
             type="button"
-            className="text-slate-500 underline"
+            className="text-[#f5b544] underline"
             onClick={() => setSharerIds(sharerIds.size === users.length ? new Set() : new Set(users.map((u) => u.id)))}
           >
             {sharerIds.size === users.length ? "Tyhjennä" : "Valitse kaikki"}
@@ -214,11 +218,15 @@ export function PaymentForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          className="rounded-full bg-[#f5b544] px-4 py-2 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
         >
           Tallenna
         </button>
-        <button type="button" onClick={onCancel} className="rounded px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full px-4 py-2 text-sm text-[#9aa1b0] hover:bg-white/5"
+        >
           Peruuta
         </button>
       </div>

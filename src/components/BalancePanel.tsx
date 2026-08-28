@@ -101,16 +101,16 @@ export function BalancePanel({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-700">Saldot</h2>
+      <div className="rounded-2xl bg-[#1a1e2a] p-4">
+        <h2 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">Saldot</h2>
         {result.balance.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">Ei vielä maksuja.</p>
+          <p className="mt-2 text-sm text-[#9aa1b0]">Ei vielä maksuja.</p>
         ) : (
           <ul className="mt-2 space-y-1 text-sm">
             {result.balance.map((b) => (
               <li key={b.name} className="flex justify-between">
                 <span>{b.name}</span>
-                <span className={b.balanceCents >= 0 ? "text-emerald-700" : "text-red-700"}>
+                <span className={b.balanceCents >= 0 ? "text-[#4fd39a]" : "text-[#ff8a7a]"}>
                   {formatAmount(b.balanceCents)} €
                 </span>
               </li>
@@ -119,34 +119,34 @@ export function BalancePanel({
         )}
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-700">Tasaus</h2>
+      <div className="rounded-2xl bg-[#1a1e2a] p-4">
+        <h2 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">Tasaus</h2>
         {result.resolved.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">Velat on tasattu.</p>
+          <p className="mt-2 text-sm text-[#9aa1b0]">Velat on tasattu.</p>
         ) : (
           <ul className="mt-2 space-y-1 text-sm">
             {result.resolved.map((t, i) => (
               <li key={i}>
                 <span className="font-medium">{t.from}</span> maksaa{" "}
-                <span className="font-medium">{formatAmount(t.amountCents)} €</span> henkilölle{" "}
+                <span className="font-medium text-[#f5b544]">{formatAmount(t.amountCents)} €</span> henkilölle{" "}
                 <span className="font-medium">{t.to}</span>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-[#9aa1b0]">
           Yhteensä käytetty: {result.total.toLocaleString("fi-FI", { minimumFractionDigits: 2 })} €
         </p>
 
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <label className="block text-xs font-medium text-slate-600" htmlFor="copy-summary-who">
+        <div className="mt-4 border-t border-white/10 pt-3">
+          <label className="block text-xs font-medium text-[#9aa1b0]" htmlFor="copy-summary-who">
             Kuka olet? (valinnainen — nostaa oman siirtosi ensin)
           </label>
           <select
             id="copy-summary-who"
             value={who}
             onChange={(e) => setWho(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+            className="mt-1 w-full rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c]"
           >
             <option value="">— ei valintaa —</option>
             {users.map((u) => (
@@ -159,7 +159,7 @@ export function BalancePanel({
             <button
               type="button"
               onClick={copySummary}
-              className="flex-1 rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700"
+              className="flex-1 rounded-full bg-[#f5b544] px-3 py-2 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f]"
             >
               {copied === "summary" ? "Kopioitu!" : "Kopioi yhteenveto"}
             </button>
@@ -167,13 +167,13 @@ export function BalancePanel({
               <button
                 type="button"
                 onClick={shareSummary}
-                className="rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-full border border-white/20 px-3 py-2 text-sm font-medium hover:bg-white/5"
               >
                 Jaa
               </button>
             )}
           </div>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-[#6b7080]">
             Liitä esim. Signal- tai WhatsApp-ryhmään. Ei lähetä mitään itse.
           </p>
 
@@ -181,7 +181,7 @@ export function BalancePanel({
             <button
               type="button"
               onClick={copyPersonalLink}
-              className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className="mt-2 w-full rounded-full border border-white/20 px-3 py-2 text-sm hover:bg-white/5"
             >
               {copied === "link" ? "Linkki kopioitu!" : `Kopioi henkilökohtainen linkki (${who})`}
             </button>

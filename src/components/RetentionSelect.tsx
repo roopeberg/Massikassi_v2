@@ -10,7 +10,7 @@ export function RetentionSelect({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded border border-slate-300 px-2 py-1 text-sm"
+      className="rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
     >
       {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
         <option key={m} value={m}>

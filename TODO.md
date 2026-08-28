@@ -132,6 +132,38 @@ flakiness unrelated to the app; static checks (`tsc`, `eslint`) are clean
 and the form's submit wiring itself is unchanged from the previously
 verified-working version (only its JSX/classes changed).
 
+### Event page redesign (dark theme)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-28
+
+User asked whether the dark-theme visual redesign above could extend from
+the landing page to the event pages too (`/event/[hash]`) — no second
+mockup existed for this, so was offered a choice between waiting for one
+and freehanding it with the same palette; chose to design it directly:
+*"Suunnittelen itse samalla paletilla"*.
+
+Restyled every component the event page renders: `EventClient.tsx` (page
+shell, home-link nav with the "m" mark, editable event-name header),
+`BalancePanel.tsx`, `PaymentForm.tsx`, `PaymentList.tsx`, `UserPanel.tsx`,
+`EventSettingsPanel.tsx`, `MigratedEventBanner.tsx`, and the shared
+`RetentionSelect.tsx`. Same tokens as the landing page: `#12141c`
+background, `#1a1e2a` cards (no border, rounded-2xl), `#f5b544` amber for
+primary actions/links, `#efeae0` cream inputs and selects, Bricolage
+Grotesque for headings/section titles, Space Grotesk for body text.
+Balance polarity kept readable against dark cards with `#4fd39a`
+(positive) / `#ff9d84` (negative, lighter than the landing page's `#f2653f`
+for contrast on `#1a1e2a`); destructive actions (delete payment, delete
+event) use the same warm red family.
+
+Verified against the real running stack (not just static markup): rebuilt
+the `builder` Docker stage and ran `eslint`, `tsc --noEmit`, and the
+`vitest` suite (9/9 passing) against it, rebuilt and redeployed the `app`
+service, then browsed a live seeded event (with an attached GIF, a
+payment, and users) through a temporary local port-publish — both desktop
+and mobile (375px) widths — before removing the temporary port again. The
+mobile balance-panel-first ordering from the earlier mobile-UX pass is
+still intact under the new styling.
+
 ### i18n
 - **Status:** ⛔ Descoped from MVP
 - **Last updated:** 2026-08-26

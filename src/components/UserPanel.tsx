@@ -45,9 +45,9 @@ export function UserPanel({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-700">Käyttäjät</h2>
-      <ul className="mt-2 space-y-1 text-sm">
+    <div className="rounded-2xl bg-[#1a1e2a] p-4">
+      <h2 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">Käyttäjät</h2>
+      <ul className="mt-2 space-y-1 text-sm text-[#f4f2ee]">
         {users.map((u) => (
           <li key={u.id}>{u.name}</li>
         ))}
@@ -58,17 +58,17 @@ export function UserPanel({
           onChange={(e) => setName(e.target.value)}
           placeholder="Uusi nimi"
           required
-          className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+          className="min-w-0 flex-1 rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
         />
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-slate-900 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+          className="rounded-full bg-[#f5b544] px-3 py-1.5 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
         >
           Lisää
         </button>
       </form>
-      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
+      {error && <p className="mt-2 text-xs text-[#ff9d84]">{error}</p>}
     </div>
   );
 }

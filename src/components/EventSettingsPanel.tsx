@@ -69,12 +69,12 @@ export function EventSettingsPanel({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-700">Tapahtuman elinikä</h2>
-      <p className="mt-2 text-sm text-slate-600">{formatRetention(expiresAt)}</p>
+    <div className="rounded-2xl bg-[#1a1e2a] p-4">
+      <h2 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">Tapahtuman elinikä</h2>
+      <p className="mt-2 text-sm text-[#b6bcc9]">{formatRetention(expiresAt)}</p>
 
       {!editingRetention ? (
-        <button type="button" onClick={() => setEditingRetention(true)} className="mt-2 text-sm text-slate-500 underline">
+        <button type="button" onClick={() => setEditingRetention(true)} className="mt-2 text-sm text-[#f5b544] underline">
           Muuta
         </button>
       ) : (
@@ -84,42 +84,42 @@ export function EventSettingsPanel({
             type="button"
             onClick={saveRetention}
             disabled={savingRetention}
-            className="rounded bg-slate-900 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-full bg-[#f5b544] px-3 py-1.5 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
           >
             Tallenna
           </button>
-          <button type="button" onClick={() => setEditingRetention(false)} className="text-sm text-slate-500 underline">
+          <button type="button" onClick={() => setEditingRetention(false)} className="text-sm text-[#9aa1b0] underline">
             Peruuta
           </button>
         </div>
       )}
 
-      <div className="mt-4 border-t border-slate-100 pt-4">
+      <div className="mt-4 border-t border-white/10 pt-4">
         {!confirmingDelete ? (
           <button
             type="button"
             onClick={() => setConfirmingDelete(true)}
-            className="text-sm text-red-600 underline"
+            className="text-sm text-[#ff9d84] underline"
           >
             Poista tapahtuma kokonaan
           </button>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm text-red-700">
+            <p className="text-sm text-[#ff9d84]">
               Tämä poistaa tapahtuman ja kaikki sen käyttäjät ja maksut pysyvästi. Ei voi perua. Kirjoita
               tapahtuman nimi (<span className="font-medium">{eventName}</span>) vahvistaaksesi.
             </p>
             <input
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              className="w-full rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f2653f]"
             />
             <div className="flex gap-2">
               <button
                 type="button"
                 disabled={confirmText !== eventName || deleting}
                 onClick={handleDelete}
-                className="rounded bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-40"
+                className="rounded-full bg-[#f2653f] px-3 py-2 text-sm font-bold text-[#12141c] hover:bg-[#ff7a52] disabled:opacity-40"
               >
                 {deleting ? "Poistetaan..." : "Poista pysyvästi"}
               </button>
@@ -129,7 +129,7 @@ export function EventSettingsPanel({
                   setConfirmingDelete(false);
                   setConfirmText("");
                 }}
-                className="rounded px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
+                className="rounded-full px-3 py-2 text-sm text-[#9aa1b0] hover:bg-white/5"
               >
                 Peruuta
               </button>
@@ -138,7 +138,7 @@ export function EventSettingsPanel({
         )}
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
+      {error && <p className="mt-2 text-xs text-[#ff9d84]">{error}</p>}
     </div>
   );
 }

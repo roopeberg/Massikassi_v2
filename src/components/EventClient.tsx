@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { BalancePanel } from "./BalancePanel";
 import { EventSettingsPanel } from "./EventSettingsPanel";
@@ -112,82 +113,93 @@ export function EventClient({
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-      <div className="mb-6">
-        {editingName ? (
-          <div className="flex items-center gap-2">
-            <input
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              className="rounded border border-slate-300 px-2 py-1 text-xl font-bold"
-              autoFocus
-            />
-            <button onClick={handleSaveName} className="text-sm text-slate-700 underline">
-              Tallenna
-            </button>
-            <button
-              onClick={() => {
-                setNameDraft(name);
-                setEditingName(false);
-              }}
-              className="text-sm text-slate-500 underline"
-            >
-              Peruuta
-            </button>
+    <main className="flex-1 bg-[#12141c] font-[family-name:var(--font-space-grotesk)] text-[#f4f2ee]">
+      <div className="mx-auto w-full max-w-4xl px-4 py-8">
+        <Link href="/" className="mb-8 flex w-fit items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#f5b544]">
+            <span className="font-[family-name:var(--font-bricolage)] text-sm font-extrabold text-[#12141c]">m</span>
           </div>
-        ) : (
-          <h1
-            className="cursor-pointer text-2xl font-bold tracking-tight"
-            onClick={() => setEditingName(true)}
-            title="Muokkaa nimeä"
-          >
-            {name}
-          </h1>
-        )}
-        <p className="text-sm text-slate-500">
-          Luonut {initialEvent.createdBy} {new Date(initialEvent.created).toLocaleDateString("fi-FI")}
-        </p>
-      </div>
+          <span className="font-[family-name:var(--font-bricolage)] text-base font-semibold tracking-tight">
+            massikassi
+          </span>
+        </Link>
 
-      {migratedAt && (
-        <MigratedEventBanner
-          hash={hash}
-          expiresAt={expiresAt}
-          onChanged={(newExpiresAt) => {
-            setExpiresAt(newExpiresAt);
-            setMigratedAt(null);
-          }}
-        />
-      )}
-
-      {/*
-        Order on mobile (single column): balance/settlement first — that's what
-        someone opening this on their phone wants to see immediately — then the
-        payment form/list, then the user list. On desktop, back to the original
-        two-column layout (main content left, balance+users stacked right).
-      */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="order-1 md:order-none md:col-start-3 md:row-start-1">
-          <BalancePanel payments={payments} users={users} eventName={name} hash={hash} initialWho={initialWho} />
-        </div>
-
-        <div className="order-2 md:order-none space-y-4 md:col-span-2 md:col-start-1 md:row-start-1 md:row-span-2">
-          {showAddForm ? (
-            <PaymentForm users={users} onCancel={() => setShowAddForm(false)} onSubmit={handleAddPayment} />
+        <div className="mb-6">
+          {editingName ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                className="rounded-xl bg-[#1e2230] px-3 py-1.5 font-[family-name:var(--font-bricolage)] text-xl font-bold text-[#f4f2ee] outline-none focus:ring-2 focus:ring-[#f5b544]"
+                autoFocus
+              />
+              <button onClick={handleSaveName} className="text-sm text-[#f5b544] underline">
+                Tallenna
+              </button>
+              <button
+                onClick={() => {
+                  setNameDraft(name);
+                  setEditingName(false);
+                }}
+                className="text-sm text-[#9aa1b0] underline"
+              >
+                Peruuta
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+            <h1
+              className="cursor-pointer font-[family-name:var(--font-bricolage)] text-3xl font-bold tracking-tight"
+              onClick={() => setEditingName(true)}
+              title="Muokkaa nimeä"
             >
-              + Lisää maksu
-            </button>
+              {name}
+            </h1>
           )}
-          <PaymentList payments={payments} users={users} onEdit={handleEditPayment} onDelete={handleDeletePayment} />
+          <p className="mt-1 text-sm text-[#9aa1b0]">
+            Luonut {initialEvent.createdBy} {new Date(initialEvent.created).toLocaleDateString("fi-FI")}
+          </p>
         </div>
 
-        <div className="order-3 md:order-none space-y-6 md:col-start-3 md:row-start-2">
-          <UserPanel hash={hash} users={users} onUserAdded={(user) => setUsers((prev) => [...prev, user])} />
-          <EventSettingsPanel hash={hash} eventName={name} expiresAt={expiresAt} onExpiryChange={setExpiresAt} />
+        {migratedAt && (
+          <MigratedEventBanner
+            hash={hash}
+            expiresAt={expiresAt}
+            onChanged={(newExpiresAt) => {
+              setExpiresAt(newExpiresAt);
+              setMigratedAt(null);
+            }}
+          />
+        )}
+
+        {/*
+          Order on mobile (single column): balance/settlement first — that's what
+          someone opening this on their phone wants to see immediately — then the
+          payment form/list, then the user list. On desktop, back to the original
+          two-column layout (main content left, balance+users stacked right).
+        */}
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="order-1 md:order-none md:col-start-3 md:row-start-1">
+            <BalancePanel payments={payments} users={users} eventName={name} hash={hash} initialWho={initialWho} />
+          </div>
+
+          <div className="order-2 md:order-none space-y-4 md:col-span-2 md:col-start-1 md:row-start-1 md:row-span-2">
+            {showAddForm ? (
+              <PaymentForm users={users} onCancel={() => setShowAddForm(false)} onSubmit={handleAddPayment} />
+            ) : (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="rounded-full bg-[#f5b544] px-5 py-2.5 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f]"
+              >
+                + Lisää maksu
+              </button>
+            )}
+            <PaymentList payments={payments} users={users} onEdit={handleEditPayment} onDelete={handleDeletePayment} />
+          </div>
+
+          <div className="order-3 md:order-none space-y-6 md:col-start-3 md:row-start-2">
+            <UserPanel hash={hash} users={users} onUserAdded={(user) => setUsers((prev) => [...prev, user])} />
+            <EventSettingsPanel hash={hash} eventName={name} expiresAt={expiresAt} onExpiryChange={setExpiresAt} />
+          </div>
         </div>
       </div>
     </main>

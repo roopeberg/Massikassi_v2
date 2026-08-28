@@ -48,25 +48,25 @@ export function MigratedEventBanner({
   }
 
   return (
-    <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+    <div className="mb-6 rounded-2xl border border-[#f5b544]/30 bg-[#f5b544]/10 p-4 text-sm text-[#f4f2ee]">
       <p>
         Tämä tapahtuma on tuotu vanhasta massikassista. Nykyään tapahtumilla on säilytysaika-asetus, ja
         tälle se asetettiin automaattisesti{" "}
         {expiresAt ? `muotoon ${new Date(expiresAt).toLocaleDateString("fi-FI")} (12 kk)` : "—"}. Voit
         muuttaa tätä halutessasi 1-12 kk:een tai ikuiseksi:
       </p>
-      {error && <p className="mt-2 text-red-700">{error}</p>}
+      {error && <p className="mt-2 text-[#ff9d84]">{error}</p>}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <RetentionSelect value={retentionChoice} onChange={setRetentionChoice} />
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="rounded bg-amber-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-50"
+          className="rounded-full bg-[#f5b544] px-3 py-1.5 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
         >
           Tallenna
         </button>
-        <button type="button" onClick={() => setDismissed(true)} className="text-sm text-amber-700 underline">
+        <button type="button" onClick={() => setDismissed(true)} className="text-sm text-[#f5b544] underline">
           Piilota
         </button>
       </div>
