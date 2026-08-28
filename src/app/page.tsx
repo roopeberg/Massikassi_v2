@@ -78,7 +78,7 @@ export default function LandingPage() {
         </div>
 
         {/* hero */}
-        <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-10">
+        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center lg:gap-10">
           <div className="lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#1e2230] px-4 py-2 text-[12.5px] font-medium text-[#f5b544]">
               <span className="h-[7px] w-[7px] rounded-full bg-[#4fd39a]" />
@@ -125,7 +125,7 @@ export default function LandingPage() {
             Kolme askelta, ei enempää
           </h2>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
             {steps.map((step) => (
               <div key={step.number} className="flex flex-col gap-5 rounded-[26px] bg-[#1a1e2a] p-7">
                 <div className="flex items-center justify-between">

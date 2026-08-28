@@ -124,7 +124,7 @@ export function PaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-[#1a1e2a] p-4">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-[20px] bg-[#1a1e2a] p-5 sm:p-6">
       <h3 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">
         {initial ? "Muokkaa maksua" : "Uusi maksu"}
       </h3>

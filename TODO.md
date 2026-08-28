@@ -132,8 +132,8 @@ flakiness unrelated to the app; static checks (`tsc`, `eslint`) are clean
 and the form's submit wiring itself is unchanged from the previously
 verified-working version (only its JSX/classes changed).
 
-### Event page redesign (dark theme)
-- **Status:** ✅ Completed
+### Event page redesign (dark theme, freehanded) — superseded
+- **Status:** ✅ Completed, then replaced (see next entry)
 - **Last updated:** 2026-08-28
 
 User asked whether the dark-theme visual redesign above could extend from
@@ -163,6 +163,77 @@ payment, and users) through a temporary local port-publish — both desktop
 and mobile (375px) widths — before removing the temporary port again. The
 mobile balance-panel-first ordering from the earlier mobile-UX pass is
 still intact under the new styling.
+
+### Event page redesign (dark theme, from reference mockups)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-28
+
+User provided three more design-canvas mockups from the original
+massikassi's developer: `ReissuTapahtuma` (desktop event page),
+`MobiiliReissuTapahtuma` (mobile event page), `MobiiliReissuEtusivu`
+(mobile landing page, confirming the existing landing page's responsive
+behavior — no changes needed there). The desktop/mobile event mockups
+are considerably richer than the freehanded version above, so replaced it
+wholesale rather than layering on top.
+
+New pieces: `src/lib/avatar.ts` assigns each participant a deterministic
+color (amber/orange/mint/periwinkle, cycling) by their position in the
+event's `users` list — used everywhere a person appears (payment rows,
+balances, settlement transfers, the participant list) so the same person
+reads as the same color across the whole page. `SettlementHero.tsx` is
+the new full-width amber "who pays whom" banner (previously this was
+just a plain list inside BalancePanel) — a grid of dark transfer cards,
+each with both parties' avatars and the amount; hidden entirely once
+everyone's settled up.
+
+`BalancePanel.tsx` now only holds "Saldot": avatar + signed balance +
+a bar sized to that balance's magnitude relative to the largest one in
+the event, plus the existing summary-sharing controls (unchanged
+behavior). `PaymentList.tsx` rows gained a colored avatar (the first
+payer's) and traded the old text links for icon-circle edit/delete
+buttons. `UserPanel.tsx` ("Osallistujat") now renders participants as
+avatar+name pill chips with a participant count, and its own
+dark-pill input/button style (`#242a38`/`#f4f2ee`) rather than the
+cream form-input style used elsewhere — that's a deliberate, mockup-driven
+exception, not an inconsistency. `EventClient.tsx` gained a "Kopioi
+linkki" button + decorative theme-toggle in the nav (copies the plain
+event URL, separate from the existing personal-link/summary sharing in
+BalancePanel), an avatar stack next to "Luonut X · pvm", a pencil icon on
+the editable title, the "+ Lisää maksu" trigger moved into the header on
+desktop, and a fixed bottom "+ Lisää maksu" bar on mobile (`sm:hidden`)
+replacing the old inline-only button — same `showAddForm` state either
+way. One deliberate deviation from the mockup: kept a single icon-button
+style for payment row actions on both mobile and desktop, instead of the
+mockup's separate full-width "Muokkaa/Poista" pill row for mobile —
+simpler to maintain, and the icon buttons already meet the touch-target
+size the mobile-UX pass established.
+
+**Bug found and fixed while doing this:** the page's main content grid
+(`grid gap-6 md:grid-cols-3`, present since the original mobile-UX pass)
+never set a base `grid-cols-1` before the `md:` override. A CSS grid with
+no explicit column count falls back to auto-sized implicit columns, sized
+to whatever's inside them — normally invisible if content stays narrow,
+but with the richer cards here (esp. the avatar+bar balance rows) it
+produced a column ~650-670px wide inside a 375px viewport, silently
+overflowing off-screen. Fixed by adding the base `grid-cols-1` — same fix
+applied to the equivalent gap in `SettlementHero.tsx`'s own transfer-card
+grid and to `src/app/page.tsx`'s two `grid gap-…` containers (hero split
+and the three step cards), which had the identical latent bug and just
+hadn't shown it yet with their shorter content. Found by comparing
+`document.documentElement.scrollWidth` against `clientWidth` and walking
+every element for one whose right edge exceeded the viewport — a
+screenshot alone didn't reliably show it (this session's browser tool has
+had recurring viewport-emulation flakiness), so this was confirmed with
+DOM measurements, not just a visual read.
+
+Verified against the real stack, not just static markup: rebuilt the
+`builder` Docker stage and ran `eslint`, `tsc --noEmit`, and `vitest`
+(9/9) against it — clean both before and after the grid-overflow fix —
+then rebuilt/redeployed `app` and browsed a seeded test event (4
+participants, 4 payments, mirroring the mockup's own numbers almost
+exactly) through a temporary local port-publish at both desktop
+(1400px) and mobile (375px) widths, confirming zero overflowing elements
+at either width before removing the port and deleting the test event.
 
 ### i18n
 - **Status:** ⛔ Descoped from MVP

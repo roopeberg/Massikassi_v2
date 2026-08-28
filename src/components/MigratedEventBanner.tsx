@@ -48,7 +48,7 @@ export function MigratedEventBanner({
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-[#f5b544]/30 bg-[#f5b544]/10 p-4 text-sm text-[#f4f2ee]">
+    <div className="rounded-[22px] border border-[#f5b544]/30 bg-[#f5b544]/10 p-4 text-sm text-[#f4f2ee]">
       <p>
         Tämä tapahtuma on tuotu vanhasta massikassista. Nykyään tapahtumilla on säilytysaika-asetus, ja
         tälle se asetettiin automaattisesti{" "}

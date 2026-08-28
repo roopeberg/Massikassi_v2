@@ -69,7 +69,7 @@ export function EventSettingsPanel({
   }
 
   return (
-    <div className="rounded-2xl bg-[#1a1e2a] p-4">
+    <div className="rounded-[22px] bg-[#1a1e2a] p-5 sm:p-6">
       <h2 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">Tapahtuman elinikä</h2>
       <p className="mt-2 text-sm text-[#b6bcc9]">{formatRetention(expiresAt)}</p>
 
