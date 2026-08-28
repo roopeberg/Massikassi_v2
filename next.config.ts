@@ -32,7 +32,6 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       { source: "/event/:path*", headers: [noIndexHeader] },
       { source: "/api/events/:path*", headers: [noIndexHeader] },
-      { source: "/api/uploads/:path*", headers: [noIndexHeader] },
     ];
   },
 };

@@ -11,36 +11,27 @@ Create event (name + first user, honeypot spam field) → link-only access →
 add users → add/edit/delete payments → live balances + settlement
 suggestions. Verified end-to-end in a real browser against a Dockerized Postgres.
 
-### Payment GIF attachments
-- **Status:** ✅ Completed
-- **Last updated:** 2026-08-27
+### Payment GIF attachments — removed
+- **Status:** ⛔ Removed entirely
+- **Last updated:** 2026-08-28
 
-User wanted to attach a GIF to a payment, asked what a workable size limit
-would be, then whether it could just be a link to an externally-hosted GIF
-(Giphy/Tenor) instead of uploading — rejected that: embedding one would leak
-every viewer's IP to whichever host serves it on every page load, the exact
-third-party exposure this project avoids everywhere else. Went with
-self-hosted upload instead, capped at 2MB / 800×800px (`lib/gif-constraints.ts`,
-shared by client-side pre-validation in `PaymentForm` and the authoritative
-server-side check in `lib/gif.ts`).
+Built (2026-08-27) as self-hosted-only upload (capped at 2MB/800×800px)
+after rejecting an externally-linked alternative on the same "no
+third-party exposure" grounds as everywhere else in this project — see
+git history for that version's full design if it's ever wanted back. User
+asked to remove the feature entirely on 2026-08-28.
 
-`lib/gif.ts` validates via the GIF's own logical screen descriptor (no image
-library needed for just this one format/check) and writes to a dedicated
-`uploads_data` Docker volume (not `public/` — that's baked into the
-standalone build at build time, not writable at runtime). Served back via
-`GET /api/uploads/[filename]`, attach/remove via
-`POST`/`DELETE /api/events/[hash]/payments/[id]/picture`. Editing a payment
-carries its picture over to the new row automatically (`repo.editPayment`);
-removing/replacing a picture never deletes the underlying file (only
-`deletePayment` does) since a soft-deleted edit-history row may still
-reference it — an accepted "occasionally orphans a file on disk" tradeoff
-over tracking cross-row reference counts, fine for a small self-hosted app.
-
-Verified end-to-end against the real stack: valid GIF uploads and serves
-correctly; non-GIF, >2MB, and >800px files are all correctly rejected with
-clear errors; a visually distinct test GIF confirmed rendering inline next
-to its payment (an initial test with a 1×1 transparent GIF looked broken
-but wasn't — just invisible at that size, a test-data artifact, not a bug).
+Removed: `lib/gif.ts`, `lib/gif-constraints.ts`,
+`api/events/[hash]/payments/[id]/picture/route.ts`,
+`api/uploads/[filename]/route.ts`, the `payments.picture_filename` column
+(and its handling in `repo.ts`: carry-over on edit, file deletion on
+payment delete, the two now-gone `setPaymentPicture`/`clearPaymentPicture`
+functions), the `gif` field from `PaymentFormValues` and its UI in
+`PaymentForm`, the thumbnail in `PaymentList`, the `uploads_data` Docker
+volume (compose + Dockerfile's directory setup), and the
+`/api/uploads/:path*` noindex header. Only one payment in the live DB had
+a GIF attached at removal time (a test one from this session) — dropped
+along with the column, no migration/preservation needed.
 
 ### Mobile layout & touch targets
 - **Status:** ✅ Completed

@@ -59,14 +59,6 @@ docker compose exec -T db pg_dump -U massikassi massikassi | gzip > /path/to/bac
 Keep a few days of these somewhere off the machine (e.g. synced to another
 disk) — a single-machine setup has no redundancy if the disk fails.
 
-Back up the `uploads_data` volume (attached payment GIFs) alongside the
-database dump — the two are only consistent together:
-
-```bash
-docker run --rm -v massikassi-v2_uploads_data:/uploads -v /path/to/backups:/backup alpine \
-  tar czf /backup/massikassi-uploads-$(date +%F).tar.gz -C /uploads .
-```
-
 ## Expired events
 
 Events default to a 3-month lifetime (the creator can pick "keep forever"

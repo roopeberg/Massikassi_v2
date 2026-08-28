@@ -14,11 +14,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-# Where uploaded GIFs live (lib/gif.ts) — a named volume mounts over this in
-# docker-compose.yml; pre-creating it with the right owner here is what
-# makes that volume come up writable by the nextjs user on first mount.
-RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
-
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
