@@ -80,38 +80,14 @@ export function EventClient({
     }
   }
 
-  // The picture is a separate multipart upload against the payment's id, not
-  // part of the JSON create/edit body — see PaymentForm's `gif` field.
-  // Callers only invoke this for an actual change (a File to attach, or null
-  // to remove); "no change" (undefined) never reaches here.
-  async function syncPicture(paymentId: number, gif: File | null): Promise<string | null> {
-    if (gif === null) {
-      await fetch(`/api/events/${hash}/payments/${paymentId}/picture`, {
-        method: "DELETE",
-      });
-      return null;
-    }
-    const form = new FormData();
-    form.append("gif", gif);
-    const res = await fetch(`/api/events/${hash}/payments/${paymentId}/picture`, {
-      method: "POST",
-      body: form,
-    });
-    if (!res.ok) return null; // payment itself still saved fine; picture just didn't attach
-    const data = await res.json();
-    return data.pictureFilename ?? null;
-  }
-
   async function handleAddPayment(values: PaymentFormValues) {
-    const { gif, ...body } = values;
     const res = await fetch(`/api/events/${hash}/payments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(values),
     });
     if (!res.ok) return parseErrorMessage(res);
     const payment: EventPayment = await res.json();
-    if (gif) payment.pictureFilename = await syncPicture(payment.id, gif);
     setPayments((prev) => [payment, ...prev]);
     setShowAddForm(false);
     return null;
@@ -119,18 +95,13 @@ export function EventClient({
 
   async function handleEditPayment(id: number, values: PaymentFormValues) {
     const original = payments.find((p) => p.id === id);
-    const { gif, ...body } = values;
     const res = await fetch(`/api/events/${hash}/payments/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...body, created: original?.created }),
+      body: JSON.stringify({ ...values, created: original?.created }),
     });
     if (!res.ok) return parseErrorMessage(res);
     const updated: EventPayment = await res.json();
-    if (gif !== undefined) {
-      const pictureFilename = await syncPicture(updated.id, gif);
-      updated.pictureFilename = pictureFilename;
-    }
     setPayments((prev) =>
       [updated, ...prev.filter((p) => p.id !== id)].sort(
         (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),

@@ -12,35 +12,47 @@ add users → add/edit/delete payments → live balances + settlement
 suggestions. Verified end-to-end in a real browser against a Dockerized Postgres.
 
 ### Payment GIF attachments
-- **Status:** ✅ Completed
-- **Last updated:** 2026-08-27
+- **Status:** ❌ Removed (was completed 2026-08-27)
+- **Last updated:** 2026-08-28
 
-User wanted to attach a GIF to a payment, asked what a workable size limit
-would be, then whether it could just be a link to an externally-hosted GIF
-(Giphy/Tenor) instead of uploading — rejected that: embedding one would leak
-every viewer's IP to whichever host serves it on every page load, the exact
-third-party exposure this project avoids everywhere else. Went with
-self-hosted upload instead, capped at 2MB / 800×800px (`lib/gif-constraints.ts`,
-shared by client-side pre-validation in `PaymentForm` and the authoritative
-server-side check in `lib/gif.ts`).
+Built, shipped, then removed the next day for hosting reasons. Worth keeping
+the reasoning on both halves, since the same tradeoff will come back if
+attachments are ever revisited.
 
-`lib/gif.ts` validates via the GIF's own logical screen descriptor (no image
-library needed for just this one format/check) and writes to a dedicated
-`uploads_data` Docker volume (not `public/` — that's baked into the
-standalone build at build time, not writable at runtime). Served back via
-`GET /api/uploads/[filename]`, attach/remove via
-`POST`/`DELETE /api/events/[hash]/payments/[id]/picture`. Editing a payment
-carries its picture over to the new row automatically (`repo.editPayment`);
-removing/replacing a picture never deletes the underlying file (only
-`deletePayment` does) since a soft-deleted edit-history row may still
-reference it — an accepted "occasionally orphans a file on disk" tradeoff
-over tracking cross-row reference counts, fine for a small self-hosted app.
+**Why it was built the way it was.** The ask was to attach a GIF to a
+payment. Linking an externally-hosted one (Giphy/Tenor) was considered and
+rejected: embedding it would leak every viewer's IP to whichever host serves
+it on every page load, the exact third-party exposure this project avoids
+everywhere else. So it was a self-hosted upload instead — capped at 2MB /
+800×800px, validated server-side via the GIF's own logical screen descriptor
+(no image library needed for one format), written to a dedicated
+`uploads_data` Docker volume rather than `public/`, which is baked into the
+standalone build at build time and isn't writable at runtime.
 
-Verified end-to-end against the real stack: valid GIF uploads and serves
-correctly; non-GIF, >2MB, and >800px files are all correctly rejected with
-clear errors; a visually distinct test GIF confirmed rendering inline next
-to its payment (an initial test with a 1×1 transparent GIF looked broken
-but wasn't — just invisible at that size, a test-data artifact, not a bug).
+**Why it was removed.** That volume was the only thing in the app that needed
+a persistent writable disk, and it set the hosting floor by itself: every
+platform with an ephemeral filesystem was disqualified, which left a VPS as
+the only comfortable answer (~€6/month). Nothing else here needs a disk — the
+data is text rows in Postgres. Dropping the feature puts the app inside free
+tiers that are published products rather than trials, and removes the backup
+consistency problem that came with it (the DB dump and the uploads tarball
+were only valid as a pair, and had to be taken together).
+
+**What went with it.** `lib/gif.ts`, `lib/gif-constraints.ts`,
+`GET /api/uploads/[filename]`, `POST`/`DELETE
+/api/events/[hash]/payments/[id]/picture`, the `payments.picture_filename`
+column, the attach/preview UI in `PaymentForm`, the inline thumbnail in
+`PaymentList` (payment rows now always show the payer's avatar), the
+`uploads_data` volume and its `Dockerfile` mkdir, and the uploads backup step
+in `DEPLOY.md`. `repo.setPaymentPicture`/`clearPaymentPicture` are gone, as
+is the picture carry-over in `repo.editPayment`.
+
+**If this comes back:** object storage (Cloudflare R2's free tier is 10 GB
+with no egress fees) keeps the no-third-party-IP-leak property as long as the
+bytes are proxied through our own route rather than linked directly, and
+doesn't reintroduce the disk requirement. Storing the bytes in Postgres as
+`bytea` also works and makes backups a single consistent file, but only on a
+database that isn't on a sub-gigabyte free tier.
 
 ### Mobile layout & touch targets
 - **Status:** ✅ Completed

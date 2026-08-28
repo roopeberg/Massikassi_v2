@@ -79,16 +79,7 @@ function PaymentRow({
         aria-expanded={open}
         className="flex w-full items-center gap-3 text-left sm:pointer-events-none sm:flex-1 sm:gap-5"
       >
-        {payment.pictureFilename ? (
-          // eslint-disable-next-line @next/next/no-img-element -- user-uploaded GIF, not a static asset
-          <img
-            src={`/api/uploads/${payment.pictureFilename}`}
-            alt=""
-            className="h-[38px] w-[38px] shrink-0 rounded-full object-cover sm:h-[46px] sm:w-[46px]"
-          />
-        ) : (
-          <Avatar name={payers[0]?.name ?? "?"} className="[--sz:38px] sm:[--sz:46px]" />
-        )}
+        <Avatar name={payers[0]?.name ?? "?"} className="[--sz:38px] sm:[--sz:46px]" />
 
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:gap-1.5">
           <span className="truncate text-[15px] font-medium sm:text-[17px]">{payment.description}</span>
