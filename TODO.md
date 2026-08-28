@@ -3,6 +3,100 @@
 Moved out of CLAUDE.md to keep that file to architecture/setup; this is the
 per-feature status log — what's done, what's open, and why, with dates.
 
+### Recovery email (PII-safe)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-28
+
+User gave a detailed, self-contained spec for letting someone attach a
+recovery email to an event and later get their event links back by email,
+with a hard requirement that the address never touch the database, logs,
+or any third-party service in plaintext. Implemented close to the spec as
+given, with one architecture decision left open by it: how to actually
+send mail. Asked, and — consistent with every other "third party or
+self-host" choice in this project — the answer was self-hosted, accepting
+the real deliverability risk that comes with sending from a non-datacenter
+IP (documented in DEPLOY.md, not glossed over).
+
+**Privacy mechanism** (`lib/recovery-email.ts`): an address is only ever
+turned into `emailKey = HMAC-SHA256(EMAIL_HMAC_SECRET, normalize(email))`
+— HMAC rather than a plain hash specifically so a DB dump alone can't be
+used to test guesses against known addresses; that needs the server-only
+secret too. The plaintext address exists only for the moment it takes to
+compute that key and hand it to `lib/mail.ts` — never stored, never
+logged. Tokens (confirmation + recovery links) follow the same pattern in
+reverse: only `SHA-256(token)` is stored, the plaintext token exists only
+long enough to put it in an email.
+
+**Schema** (`lib/db/schema.ts`): `event_recovery` (event_id, email_key,
+verified_at — unique per event+key), `confirmation_requests` and
+`recovery_requests` (token_hash, expiry, single-use `used_at`). All DB
+access is in `lib/recovery-repo.ts`, kept separate from `repo.ts` (which
+now exports `findEventByHash` for reuse) rather than folded in.
+
+**Flows:**
+- *Attach*: `EventSettingsPanel`-adjacent `RecoveryEmailPanel.tsx` →
+  `POST /api/events/[hash]/recovery-email` → confirmation email →
+  `/confirm/[token]` page (server component, confirms directly via
+  `confirmRecoveryEmail`, no self-fetch) marks `verified_at`. Re-attaching
+  an already-verified address is a no-op that just reports
+  `already-verified`; the UI never shows *which* address is attached,
+  only verified yes/no — enforced by construction, since the app itself
+  never has the plaintext to show back.
+- *Recover*: `/recovery` page (form) → `POST /api/recovery` → always the
+  same generic response and roughly-matched timing regardless of whether
+  the address matched anything (`requestRecovery` in `recovery-repo.ts`
+  does the same DB lookup either way, with a small fixed delay on the
+  no-match path) → if matched, one recovery token emailed → `/recovery/[token]`
+  lists every verified event for that address, single-use.
+- Landing page got a small "Kadotitko vanhan tapahtuman linkin? Palauta
+  sähköpostilla" link to `/recovery`.
+
+**Rate limiting**: attach (5/hour/IP, since it sends email), recovery
+request (5/hour/IP *and* 3/hour/emailKey — the emailKey limiter increments
+identically whether the address matches or not, so it isn't itself an
+enumeration oracle). Token-redemption pages (`/confirm/[token]`,
+`/recovery/[token]`) are deliberately *not* rate-limited: the token is 256
+random bits, so request-rate has no bearing on guessability.
+
+**PII-safe logging**: `lib/mail.ts`'s `sendMail` never throws and never
+logs the underlying error (nodemailer/SMTP rejection text can echo the
+recipient address back, e.g. "550 mailbox <address> unavailable") — only
+`"mail send failed"`, nothing else. Neither new route ever logs a request
+body or the parsed email.
+
+**Self-hosted mail** (`docker-compose.yml`, `mail` service, `boky/postfix`
+image): outbound-only relay, not reachable outside the compose network,
+DKIM auto-generated into a named volume. Hit one real bug during setup:
+the app→mail hop failed with `SSL_accept error ... lost connection` —
+nodemailer attempting STARTTLS against Postfix's self-signed cert. Fixed
+by setting `ignoreTLS: true` on that specific hop (it never leaves the
+private Docker network, so there's nothing STARTTLS was protecting there;
+Postfix's own onward delivery to the real internet still negotiates TLS
+normally, unaffected). DEPLOY.md documents the DNS records a real
+deployment needs (SPF, DKIM — including how to read the key Postfix
+generates, DMARC, PTR) and is explicit that none of it guarantees
+inbox placement from a residential/office IP.
+
+**Verified**: `eslint`/`tsc --noEmit`/`vitest` clean (added
+`recovery-email.test.ts`, 11 cases covering normalization, HMAC
+determinism/secret-dependence, and token hashing). Applied the schema
+change against the live DB. End-to-end against the real running stack: a
+throwaway script (`scripts/_verify-recovery-flow.ts`, deleted after)
+exercised `attachRecoveryEmail` → `confirmRecoveryEmail` (including bogus
+and reused tokens correctly rejected) → `requestRecovery` (matched and
+unmatched addresses) → `resolveRecoveryToken` (including reuse correctly
+rejected) directly against Postgres — all passed. Separately confirmed
+real SMTP delivery works: after the TLS fix, a test message to a
+nonexistent-but-real Gmail address made it all the way to
+`gmail-smtp-in.l.google.com` and got a legitimate `550 5.1.1 no such
+user` — proof the app→mail→internet path is wired correctly end to end,
+independent of the (separately documented, unverifiable from this dev
+environment) real-world deliverability question. UI verified visually:
+the `RecoveryEmailPanel` card, `/recovery` request form, and the landing
+page link all render correctly against the real stack. Local Docker
+stack (`db`/`mail`/`app`/`caddy`) is up and running with this feature
+live as of this update.
+
 ### Core expense flow
 - **Status:** ✅ Completed
 - **Last updated:** 2026-08-26

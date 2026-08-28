@@ -26,6 +26,8 @@ export interface EventInfo {
   expiresAt: Date | null;
   /** Set only for a legacy-imported event whose retention nobody has touched yet. */
   migratedAt: Date | null;
+  /** At least one verified recovery email is attached — never which one, see lib/recovery-email.ts. */
+  hasVerifiedRecoveryEmail: boolean;
   users: EventUser[];
   payments: EventPayment[];
 }

@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       { source: "/event/:path*", headers: [noIndexHeader] },
       { source: "/api/events/:path*", headers: [noIndexHeader] },
+      { source: "/confirm/:path*", headers: [noIndexHeader] },
+      { source: "/recovery/:path*", headers: [noIndexHeader] },
+      { source: "/api/recovery/:path*", headers: [noIndexHeader] },
     ];
   },
 };

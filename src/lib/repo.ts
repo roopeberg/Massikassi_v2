@@ -26,7 +26,9 @@ function resolveExpiresAt(retentionMonths: number | null | undefined): Date | nu
   return retentionMonths === null ? null : monthsFromNow(retentionMonths);
 }
 
-async function findEventByHash(hash: string) {
+// Exported so lib/recovery-repo.ts can reuse the same lookup instead of
+// duplicating it.
+export async function findEventByHash(hash: string) {
   const [event] = await db.select().from(events).where(eq(events.hash, hash)).limit(1);
   if (!event) throw new NotFoundError("Event not found");
   return event;

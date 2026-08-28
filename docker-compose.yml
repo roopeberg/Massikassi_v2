@@ -36,11 +36,36 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://massikassi:${POSTGRES_PASSWORD}@db:5432/massikassi
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+      EMAIL_HMAC_SECRET: ${EMAIL_HMAC_SECRET:?set EMAIL_HMAC_SECRET in .env}
+      MAIL_HOST: mail
+      MAIL_PORT: 587
     depends_on:
       db:
         condition: service_healthy
+      mail:
+        condition: service_started
     expose:
       - "3000"
+
+  # Self-hosted outbound-only mail relay for the recovery-email feature
+  # (lib/mail.ts) — no third-party email API, matching this project's "no
+  # third party gets viewer/user data" pattern throughout. Only reachable
+  # from other containers on this compose network, not exposed publicly.
+  # See DEPLOY.md for the DNS records (SPF, DKIM, PTR) this needs to
+  # actually land in inboxes, and the real deliverability risk of sending
+  # from a non-datacenter IP even with those in place.
+  mail:
+    image: boky/postfix
+    restart: unless-stopped
+    environment:
+      ALLOWED_SENDER_DOMAINS: ${DOMAIN:?set DOMAIN in .env}
+      POSTFIX_myhostname: mail.${DOMAIN:?set DOMAIN in .env}
+      DKIM_AUTOGENERATE: "1"
+    volumes:
+      - mail_dkim:/etc/opendkim/keys
+    expose:
+      - "587"
 
   caddy:
     image: caddy:2-alpine
@@ -61,3 +86,4 @@ volumes:
   db_data:
   caddy_data:
   caddy_config:
+  mail_dkim:

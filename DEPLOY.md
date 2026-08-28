@@ -33,6 +33,41 @@ docker compose up -d              # starts app + caddy too
 Visit `https://<your-domain>` — first load may take a few seconds while Caddy
 requests the certificate.
 
+## Outbound email (recovery-email feature)
+
+Recovery emails (confirmation + recovery links, `lib/mail.ts`) send through a
+self-hosted Postfix container (`mail` in docker-compose.yml, `boky/postfix`)
+— not a third-party email API — so nothing about who's using this app or
+what their events are called ever reaches an outside mail provider beyond
+the recipient's own inbox. That said, **sending from a non-datacenter IP is
+genuinely likely to land in spam or get rejected outright** even with every
+record below set correctly — this is a real, accepted tradeoff for keeping
+email in-house, not a solved problem. If recovery emails matter a lot in
+practice, this is the piece most worth revisiting first.
+
+DNS records needed, in addition to the `DOMAIN` A record above:
+
+- **SPF** (TXT on `DOMAIN`): `v=spf1 ip4:<your static IP> -all`
+- **DKIM** (TXT on `mail._domainkey.<DOMAIN>`): the public key Postfix
+  generates on first boot. After `docker compose up -d mail`, get it with:
+  ```bash
+  docker compose exec mail cat /etc/opendkim/keys/<DOMAIN>/mail.txt
+  ```
+  (adjust the path if the container laid the key out differently — check
+  `docker compose exec mail ls -R /etc/opendkim/keys` if that file isn't
+  there). Paste the `TXT` record value as-is into DNS.
+- **DMARC** (TXT on `_dmarc.<DOMAIN>`, recommended): start permissive while
+  testing, e.g. `v=DMARC1; p=none; rua=mailto:postmaster@<DOMAIN>`.
+- **PTR / reverse DNS** for your static IP, pointing back to
+  `mail.<DOMAIN>` — this one you can't set yourself; ask whoever manages
+  the static IP allocation (your ISP) to configure it. Many providers
+  refuse to relay/accept mail from an IP with no matching PTR at all,
+  regardless of SPF/DKIM being correct.
+
+`EMAIL_HMAC_SECRET` in `.env` (see `.env.example`) is unrelated to any of
+this — it's what keeps recovery emails out of the database in plaintext,
+not part of the sending path.
+
 ## Updating after a code change
 
 ```bash
@@ -83,3 +118,7 @@ it after the fact.
   images yourself.
 - **DOMAIN must be a real, resolvable domain** for Caddy's automatic HTTPS to
   work — it won't issue a certificate for a bare IP address.
+- **No guaranteed email deliverability.** Recovery emails send from this
+  machine's own IP, not a reputation-managed provider — see "Outbound
+  email" above. Correct SPF/DKIM/PTR help but don't guarantee inbox
+  placement from a non-datacenter address.

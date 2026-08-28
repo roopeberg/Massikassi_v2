@@ -33,3 +33,9 @@ export const paymentSchema = z.object({
   dues: z.array(dueSchema).min(1),
   created: z.coerce.date().optional(),
 });
+
+// Shared by "attach a recovery email to an event" and "request recovery" —
+// both take just an address, nothing else.
+export const recoveryEmailSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+});

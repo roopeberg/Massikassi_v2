@@ -1,4 +1,4 @@
-import { boolean, foreignKey, integer, numeric, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, foreignKey, integer, numeric, pgTable, serial, text, timestamp, unique, varchar } from "drizzle-orm/pg-core";
 
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
@@ -67,3 +67,56 @@ export const dues = pgTable(
     foreignKey({ columns: [table.userId], foreignColumns: [users.id] }).onDelete("cascade"),
   ],
 );
+
+// Links an event to a recovery email address WITHOUT ever storing the
+// address itself — only emailKey, an HMAC-SHA256 of the normalized address
+// keyed by a server-only secret (EMAIL_HMAC_SECRET). A plain hash (even
+// salted) would let anyone with a DB dump test guesses against known
+// addresses; HMAC needs the secret too. See lib/recovery-email.ts.
+export const eventRecovery = pgTable(
+  "event_recovery",
+  {
+    id: serial("id").primaryKey(),
+    eventId: integer("event_id").notNull(),
+    emailKey: varchar("email_key", { length: 64 }).notNull(),
+    // Null until the confirmation link (see confirmationRequests) is used.
+    // Recovery only ever considers verified rows, so attaching someone
+    // else's address without their consent doesn't actually do anything.
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    foreignKey({ columns: [table.eventId], foreignColumns: [events.id] }).onDelete("cascade"),
+    unique().on(table.eventId, table.emailKey),
+  ],
+);
+
+// One-time, expiring tokens for confirming a newly-attached recovery email.
+// Only tokenHash (SHA-256 of the token) is stored — the plaintext token
+// exists only in memory long enough to email it, same as recoveryRequests.
+export const confirmationRequests = pgTable(
+  "confirmation_requests",
+  {
+    id: serial("id").primaryKey(),
+    eventRecoveryId: integer("event_recovery_id").notNull(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    foreignKey({ columns: [table.eventRecoveryId], foreignColumns: [eventRecovery.id] }).onDelete("cascade"),
+  ],
+);
+
+// One-time, expiring tokens for the "email me my events" recovery flow.
+// Keyed by emailKey (not eventId) since one request can surface several
+// events at once — see lib/recovery-repo.ts.
+export const recoveryRequests = pgTable("recovery_requests", {
+  id: serial("id").primaryKey(),
+  emailKey: varchar("email_key", { length: 64 }).notNull(),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

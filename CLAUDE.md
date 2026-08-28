@@ -36,6 +36,12 @@ set and identical splitting/settlement math, on a current stack.
 - `src/lib/repo.ts` — all DB access (events/users/payments/dues), transactional
   where it matters (creating an event + first user, adding/editing a payment +
   its dues).
+- `src/lib/recovery-email.ts` / `src/lib/recovery-repo.ts` / `src/lib/mail.ts` —
+  the recovery-email feature: an address is only ever stored as
+  `HMAC-SHA256(EMAIL_HMAC_SECRET, normalized_email)`, never in plaintext.
+  Mail sends through a self-hosted Postfix container (`mail` in
+  docker-compose.yml), not a third-party API. See TODO.md for the full
+  design and DEPLOY.md for the DNS records it needs.
 - `src/lib/validation.ts` — Zod schemas for every API input.
 - `src/app/api/**` — REST-ish route handlers, thin wrappers around `repo.ts`.
 - `src/components/EventClient.tsx` — the interactive event page (add/edit/delete

@@ -7,6 +7,7 @@ import { EventSettingsPanel } from "./EventSettingsPanel";
 import { MigratedEventBanner } from "./MigratedEventBanner";
 import { PaymentForm, type PaymentFormValues } from "./PaymentForm";
 import { PaymentList } from "./PaymentList";
+import { RecoveryEmailPanel } from "./RecoveryEmailPanel";
 import { SettlementHero } from "./SettlementHero";
 import { UserPanel } from "./UserPanel";
 import { avatarColors, initials } from "@/lib/avatar";
@@ -281,6 +282,7 @@ export function EventClient({
 
           <div className="order-3 md:order-none flex flex-col gap-6 md:col-start-3 md:row-start-2">
             <UserPanel hash={hash} users={users} onUserAdded={(user) => setUsers((prev) => [...prev, user])} />
+            <RecoveryEmailPanel hash={hash} initialVerified={initialEvent.hasVerifiedRecoveryEmail} />
             <EventSettingsPanel hash={hash} eventName={name} expiresAt={expiresAt} onExpiryChange={setExpiresAt} />
           </div>
         </div>

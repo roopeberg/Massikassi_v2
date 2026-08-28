@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventClient } from "@/components/EventClient";
 import { NotFoundError, getEventInfo } from "@/lib/repo";
+import { hasVerifiedRecoveryEmail } from "@/lib/recovery-repo";
 
 // Always dynamic: this is per-event live data, never a static page.
 export const dynamic = "force-dynamic";
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
 
 async function loadEvent(hash: string) {
   try {
-    return await getEventInfo(hash);
+    const [event, recoveryEmailVerified] = await Promise.all([getEventInfo(hash), hasVerifiedRecoveryEmail(hash)]);
+    return { ...event, hasVerifiedRecoveryEmail: recoveryEmailVerified };
   } catch (error) {
     if (error instanceof NotFoundError) {
       notFound();

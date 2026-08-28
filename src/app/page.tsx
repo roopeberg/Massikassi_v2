@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CreateEventForm } from "@/components/CreateEventForm";
 
 // Colors/type/spacing here are lifted deliberately close to the approved
@@ -116,6 +117,12 @@ export default function LandingPage() {
 
           <div className="lg:col-span-5">
             <CreateEventForm />
+            <p className="mt-4 text-center text-sm text-[#8a8f9d]">
+              Kadotitko vanhan tapahtuman linkin?{" "}
+              <Link href="/recovery" className="text-[#f5b544] underline">
+                Palauta sähköpostilla
+              </Link>
+            </p>
           </div>
         </div>
 
