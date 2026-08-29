@@ -30,11 +30,9 @@ export function RecoveryRequestForm() {
 
   if (sent) {
     return (
-      <div className="rounded-[28px] bg-[#fbf7f0] p-8 text-[#12141c] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]">
-        <div className="font-[family-name:var(--font-bricolage)] text-2xl font-semibold tracking-tight">
-          Tarkista sähköpostisi
-        </div>
-        <p className="mt-3 text-sm text-[#4b5060]">
+      <div className="rounded-[28px] bg-[var(--paper-bg)] p-8 text-[var(--paper-fg)] shadow-[var(--card-shadow)]">
+        <div className="font-display text-2xl font-semibold tracking-tight">Tarkista sähköpostisi</div>
+        <p className="mt-3 text-sm text-[var(--paper-muted)]">
           Jos osoitteeseen liittyviä tapahtumia löytyi, lähetimme palautuslinkin sähköpostiin. Linkki toimii
           kerran ja vanhenee 45 minuutissa.
         </p>
@@ -45,18 +43,16 @@ export function RecoveryRequestForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[28px] bg-[#fbf7f0] p-8 text-[#12141c] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]"
+      className="rounded-[28px] bg-[var(--paper-bg)] p-8 text-[var(--paper-fg)] shadow-[var(--card-shadow)]"
     >
-      <div className="font-[family-name:var(--font-bricolage)] text-2xl font-semibold tracking-tight">
-        Palauta tapahtumasi
-      </div>
-      <p className="mt-2 text-sm text-[#6b7080]">
+      <div className="font-display text-2xl font-semibold tracking-tight">Palauta tapahtumasi</div>
+      <p className="mt-2 text-sm text-[var(--paper-muted)]">
         Jos olet liittänyt sähköpostiosoitteen johonkin tapahtumaan palautusta varten, saat sen kautta
         linkin takaisin.
       </p>
 
       <div className="mt-6 flex flex-col gap-1.5">
-        <label htmlFor="recovery-email" className="text-xs font-medium text-[#4b5060]">
+        <label htmlFor="recovery-email" className="text-xs font-medium text-[var(--paper-muted)]">
           Sähköpostiosoite
         </label>
         <input
@@ -66,19 +62,19 @@ export function RecoveryRequestForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="oma@osoite.fi"
-          className="h-[52px] w-full rounded-2xl bg-[#efeae0] px-4 text-[15px] text-[#12141c] placeholder:text-[#9aa1b0] focus:outline-2 focus:outline-[#f5b544]"
+          className="h-[52px] w-full rounded-2xl bg-[var(--paper-input-bg)] px-4 text-[15px] text-[var(--paper-fg)] placeholder:text-[var(--paper-subtle)] focus:outline-2 focus:outline-accent"
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting}
-        className="mt-6 flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-[#12141c] text-base font-bold text-[#fbf7f0] hover:bg-[#1e2230] disabled:opacity-50"
+        className="mt-6 flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-[var(--paper-fg)] text-base font-bold text-[var(--paper-bg)] hover:opacity-90 disabled:opacity-50"
       >
         {submitting ? "Lähetetään..." : "Lähetä palautuslinkki"}
       </button>
 
-      <p className="mt-4 text-center text-xs leading-relaxed text-[#8a8f9d]">
+      <p className="mt-4 text-center text-xs leading-relaxed text-[var(--paper-subtle)]">
         Emme kerro tässä, löytyikö osoite vai ei — vain sähköposti paljastaa sen, jos siihen on jotain
         liitetty.
       </p>

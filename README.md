@@ -14,9 +14,8 @@ työkaluilla, samalla jako- ja tasauslogiikalla.
 ## Kehitys
 
 ```bash
-npm install
-cp .env.example .env.local   # ja täytä DATABASE_URL
-npm run db:push              # luo taulut paikalliseen tietokantaan
+cp .env.example .env   # oletukset toimivat sellaisenaan paikalliskehitykseen
+npm run setup          # npm install + Postgres pystyyn Dockerissa + taulut
 npm run dev
 ```
 

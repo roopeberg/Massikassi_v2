@@ -9,9 +9,12 @@ import { PaymentForm, type PaymentFormValues } from "./PaymentForm";
 import { PaymentList } from "./PaymentList";
 import { RecoveryEmailPanel } from "./RecoveryEmailPanel";
 import { SettlementHero } from "./SettlementHero";
+import { ThemeToggle } from "./ThemeToggle";
 import { UserPanel } from "./UserPanel";
+import { LinkIcon, PencilIcon, PlusIcon } from "./icons";
 import { avatarColors, initials } from "@/lib/avatar";
 import { resolve } from "@/lib/domain/resolve";
+import { formatDay, formatEuros } from "@/lib/format";
 import type { EventInfo, EventPayment } from "@/lib/types";
 
 async function parseErrorMessage(res: Response): Promise<string> {
@@ -21,23 +24,6 @@ async function parseErrorMessage(res: Response): Promise<string> {
   } catch {
     return "Jotain meni pieleen.";
   }
-}
-
-function LinkIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
-      <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
-    </svg>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#12141c" strokeWidth="2.6" strokeLinecap="round">
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
 }
 
 export function EventClient({
@@ -123,34 +109,26 @@ export function EventClient({
   }
 
   return (
-    <main className="flex-1 bg-[#12141c] font-[family-name:var(--font-space-grotesk)] text-[#f4f2ee]">
+    <main className="flex-1 bg-canvas font-sans text-ink">
       <div className="mx-auto w-full max-w-6xl px-4 pb-28 sm:px-6 sm:pb-16 lg:px-10">
         {/* nav */}
         <div className="flex items-center justify-between pt-6">
           <Link href="/" className="flex w-fit items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#f5b544]">
-              <span className="font-[family-name:var(--font-bricolage)] text-sm font-extrabold text-[#12141c]">m</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-accent">
+              <span className="font-display text-sm font-extrabold text-on-accent">m</span>
             </div>
-            <span className="font-[family-name:var(--font-bricolage)] text-base font-semibold tracking-tight">
-              massikassi
-            </span>
+            <span className="font-display text-base font-semibold tracking-tight">massikassi</span>
           </Link>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={copyEventLink}
-              className="flex h-11 items-center gap-2 rounded-full bg-[#1e2230] px-4 text-[13px] text-[#9aa1b0] hover:text-[#f4f2ee] sm:px-5"
+              className="flex h-11 items-center gap-2 rounded-full bg-surface-2 px-4 text-[13px] text-ink-soft hover:text-ink sm:px-5"
             >
-              <LinkIcon />
+              <LinkIcon className="h-[15px] w-[15px]" />
               <span className="hidden sm:inline">{linkCopied ? "Kopioitu!" : "Kopioi linkki"}</span>
             </button>
-            {/* Decorative only — this page doesn't have a light theme (yet), so it's not a working toggle. */}
-            <div aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1e2230]">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa1b0" strokeWidth="1.5" strokeLinecap="round">
-                <circle cx="12" cy="12" r="8.5" />
-                <path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="#9aa1b0" />
-              </svg>
-            </div>
+            <ThemeToggle />
           </div>
         </div>
 
@@ -162,10 +140,10 @@ export function EventClient({
                 <input
                   value={nameDraft}
                   onChange={(e) => setNameDraft(e.target.value)}
-                  className="rounded-xl bg-[#1e2230] px-3 py-1.5 font-[family-name:var(--font-bricolage)] text-2xl font-extrabold text-[#f4f2ee] outline-none focus:ring-2 focus:ring-[#f5b544] sm:text-[38px]"
+                  className="rounded-xl bg-surface-2 px-3 py-1.5 font-display text-2xl font-extrabold text-ink outline-none focus:ring-2 focus:ring-accent sm:text-[38px]"
                   autoFocus
                 />
-                <button onClick={handleSaveName} className="text-sm text-[#f5b544] underline">
+                <button onClick={handleSaveName} className="text-sm text-accent-ink underline">
                   Tallenna
                 </button>
                 <button
@@ -173,7 +151,7 @@ export function EventClient({
                     setNameDraft(name);
                     setEditingName(false);
                   }}
-                  className="text-sm text-[#9aa1b0] underline"
+                  className="text-sm text-ink-soft underline"
                 >
                   Peruuta
                 </button>
@@ -185,37 +163,23 @@ export function EventClient({
                 className="group flex cursor-pointer items-center gap-3 text-left"
                 title="Muokkaa nimeä"
               >
-                <h1 className="font-[family-name:var(--font-bricolage)] text-[32px] font-extrabold tracking-tight sm:text-[44px]">
-                  {name}
-                </h1>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#6b7080"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0 opacity-60 group-hover:opacity-100"
-                >
-                  <path d="M4 20h4l11-11a2.5 2.5 0 0 0-3.5-3.5L4.5 16.5 4 20z" />
-                </svg>
+                <h1 className="font-display text-[32px] font-extrabold tracking-tight sm:text-[44px]">{name}</h1>
+                <PencilIcon className="h-[18px] w-[18px] shrink-0 text-ink-subtle opacity-60 group-hover:opacity-100" />
               </button>
             )}
-            <div className="flex flex-wrap items-center gap-3 text-[13.5px] text-[#8a8f9d]">
+            <div className="flex flex-wrap items-center gap-3 text-[13.5px] text-ink-muted">
               <span>
-                Luonut {initialEvent.createdBy} {new Date(initialEvent.created).toLocaleDateString("fi-FI")}
+                Luonut {initialEvent.createdBy} {formatDay(initialEvent.created)}
               </span>
               {users.length > 0 && (
                 <div className="flex items-center">
                   {users.map((u, i) => {
-                    const { bg, text } = avatarColors(i);
+                    const { bg, fg } = avatarColors(i);
                     return (
                       <div
                         key={u.id}
-                        className="-ml-2 flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-[#12141c] text-[11px] font-bold first:ml-0"
-                        style={{ background: bg, color: text }}
+                        className="-ml-2 flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-canvas text-[11px] font-bold first:ml-0"
+                        style={{ background: bg, color: fg }}
                       >
                         {initials(u.name)}
                       </div>
@@ -229,9 +193,9 @@ export function EventClient({
           <button
             type="button"
             onClick={() => setShowAddForm((v) => !v)}
-            className="hidden h-14 items-center gap-2.5 rounded-full bg-[#f5b544] px-7 text-base font-bold text-[#12141c] hover:bg-[#ffc95f] sm:flex"
+            className="hidden h-14 items-center gap-2.5 rounded-full bg-btn-bg px-7 text-base font-bold text-btn-fg hover:opacity-90 sm:flex"
           >
-            <PlusIcon />
+            <PlusIcon className="h-[18px] w-[18px]" />
             Lisää maksu
           </button>
         </div>
@@ -269,11 +233,11 @@ export function EventClient({
               <PaymentForm users={users} onCancel={() => setShowAddForm(false)} onSubmit={handleAddPayment} />
             )}
             <div className="flex items-center justify-between px-1">
-              <h2 className="font-[family-name:var(--font-bricolage)] text-lg font-semibold sm:text-[22px]">Maksut</h2>
-              <div className="text-[13.5px] text-[#8a8f9d]">
+              <h2 className="font-display text-lg font-semibold sm:text-[22px]">Maksut</h2>
+              <div className="text-[13.5px] text-ink-muted">
                 Yhteensä{" "}
-                <span className="font-bold text-[#f4f2ee] tabular-nums">
-                  {settlement.total.toLocaleString("fi-FI", { minimumFractionDigits: 2 })} €
+                <span className="font-bold text-ink tabular-nums">
+                  {formatEuros(settlement.total)} €
                 </span>
               </div>
             </div>
@@ -292,9 +256,9 @@ export function EventClient({
       <button
         type="button"
         onClick={() => setShowAddForm((v) => !v)}
-        className="fixed inset-x-4 bottom-4 z-10 flex h-14 items-center justify-center gap-2.5 rounded-full bg-[#f5b544] text-base font-bold text-[#12141c] shadow-[0_-10px_30px_-12px_rgba(18,20,28,0.9)] hover:bg-[#ffc95f] sm:hidden"
+        className="fixed inset-x-4 bottom-4 z-10 flex h-14 items-center justify-center gap-2.5 rounded-full bg-btn-bg text-base font-bold text-btn-fg shadow-[0_-10px_30px_-12px_rgba(18,20,28,0.5)] hover:opacity-90 sm:hidden"
       >
-        <PlusIcon />
+        <PlusIcon className="h-[18px] w-[18px]" />
         {showAddForm ? "Piilota lomake" : "Lisää maksu"}
       </button>
     </main>

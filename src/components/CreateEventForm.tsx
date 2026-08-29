@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { RetentionSelect } from "./RetentionSelect";
 
 const fieldClass =
-  "h-[52px] w-full rounded-2xl bg-[#efeae0] px-4 text-[15px] text-[#12141c] placeholder:text-[#9aa1b0] focus:outline-2 focus:outline-[#f5b544]";
+  "h-[52px] w-full rounded-2xl bg-[var(--paper-input-bg)] px-4 text-[15px] text-[var(--paper-fg)] placeholder:text-[var(--paper-subtle)] focus:outline-2 focus:outline-accent";
 
 export function CreateEventForm() {
   const router = useRouter();
@@ -53,18 +53,18 @@ export function CreateEventForm() {
     <form
       id="luo-tapahtuma"
       onSubmit={handleSubmit}
-      className="rounded-[28px] bg-[#fbf7f0] p-8 text-[#12141c] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]"
+      className="rounded-[28px] bg-[var(--paper-bg)] p-8 text-[var(--paper-fg)] shadow-[var(--card-shadow)]"
     >
-      <div className="font-[family-name:var(--font-bricolage)] text-2xl font-semibold tracking-tight">
-        Aloita tästä
-      </div>
-      <p className="mt-2 text-sm text-[#6b7080]">Tapahtuma syntyy heti — linkin voit jakaa vaikka WhatsAppissa.</p>
+      <div className="font-display text-2xl font-semibold tracking-tight">Aloita tästä</div>
+      <p className="mt-2 text-sm text-[var(--paper-muted)]">
+        Tapahtuma syntyy heti — linkin voit jakaa vaikka WhatsAppissa.
+      </p>
 
-      {error && <p className="mt-4 rounded-xl bg-red-100 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-4 rounded-xl bg-negative-wash px-3 py-2 text-sm text-negative">{error}</p>}
 
       <div className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="event-name" className="text-xs font-medium text-[#4b5060]">
+          <label htmlFor="event-name" className="text-xs font-medium text-[var(--paper-muted)]">
             Tapahtuman nimi
           </label>
           <input
@@ -78,7 +78,7 @@ export function CreateEventForm() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="user-name" className="text-xs font-medium text-[#4b5060]">
+          <label htmlFor="user-name" className="text-xs font-medium text-[var(--paper-muted)]">
             Oma nimesi
           </label>
           <input
@@ -92,7 +92,7 @@ export function CreateEventForm() {
         </div>
       </div>
 
-      <div className="mt-4 text-sm text-[#6b7080]">
+      <div className="mt-4 text-sm text-[var(--paper-muted)]">
         {!editingRetention ? (
           <p>
             {retentionChoice === "forever" ? "Tapahtuma säilytetään ikuisesti." : `Tapahtuma säilytetään ${retentionChoice} kk.`}{" "}
@@ -119,7 +119,7 @@ export function CreateEventForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="mt-6 flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-[#12141c] text-base font-bold text-[#fbf7f0] hover:bg-[#1e2230] disabled:opacity-50"
+        className="mt-6 flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-[var(--paper-fg)] text-base font-bold text-[var(--paper-bg)] hover:opacity-90 disabled:opacity-50"
       >
         {submitting ? "Luodaan..." : "Luo tapahtuma"}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -127,7 +127,7 @@ export function CreateEventForm() {
         </svg>
       </button>
 
-      <p className="mt-4 text-center text-xs leading-relaxed text-[#8a8f9d]">
+      <p className="mt-4 text-center text-xs leading-relaxed text-[var(--paper-subtle)]">
         Ei rekisteröitymistä. Tapahtumaan pääsee vain sen linkin kautta — säilytä se.
       </p>
     </form>

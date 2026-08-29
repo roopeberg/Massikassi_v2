@@ -41,9 +41,7 @@ export function PaymentForm({
   // label is too small a tap target on a phone, this is the whole pill.
   function chipClass(checked: boolean) {
     return `inline-flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors ${
-      checked
-        ? "border-[#f5b544] bg-[#f5b544] text-[#12141c]"
-        : "border-white/15 text-[#f4f2ee] active:bg-white/10"
+      checked ? "border-accent bg-accent text-on-accent" : "border-line text-ink active:bg-surface-3"
     }`;
   }
 
@@ -81,37 +79,35 @@ export function PaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-[20px] bg-[#1a1e2a] p-5 sm:p-6">
-      <h3 className="font-[family-name:var(--font-bricolage)] text-sm font-semibold">
-        {initial ? "Muokkaa maksua" : "Uusi maksu"}
-      </h3>
-      {error && <p className="rounded-xl bg-[#f2653f]/15 px-3 py-2 text-sm text-[#ff9d84]">{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-[20px] bg-surface p-5 sm:p-6">
+      <h3 className="font-display text-sm font-semibold">{initial ? "Muokkaa maksua" : "Uusi maksu"}</h3>
+      {error && <p className="rounded-xl bg-negative-wash px-3 py-2 text-sm text-negative">{error}</p>}
 
       <div>
-        <label className="block text-xs font-medium text-[#9aa1b0]">Kuvaus</label>
+        <label className="block text-xs font-medium text-ink-soft">Kuvaus</label>
         <input
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Esim. Ruokakauppa"
-          className="mt-1 w-full rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
+          className="mt-1 w-full rounded-xl bg-[var(--paper-input-bg)] px-2 py-1.5 text-sm text-[var(--paper-fg)] outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-[#9aa1b0]">Summa</label>
+        <label className="block text-xs font-medium text-ink-soft">Summa</label>
         <input
           required
           inputMode="decimal"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
-          className="mt-1 w-32 rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
+          className="mt-1 w-32 rounded-xl bg-[var(--paper-input-bg)] px-2 py-1.5 text-sm text-[var(--paper-fg)] outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
 
       <fieldset>
-        <legend className="text-xs font-medium text-[#9aa1b0]">Kuka maksoi</legend>
+        <legend className="text-xs font-medium text-ink-soft">Kuka maksoi</legend>
         <div className="mt-1 flex flex-wrap gap-2">
           {users.map((u) => (
             <label key={u.id} className={chipClass(payerIds.has(u.id))}>
@@ -128,11 +124,11 @@ export function PaymentForm({
       </fieldset>
 
       <fieldset>
-        <legend className="flex items-center gap-2 text-xs font-medium text-[#9aa1b0]">
+        <legend className="flex items-center gap-2 text-xs font-medium text-ink-soft">
           Kenen kesken jaetaan
           <button
             type="button"
-            className="text-[#f5b544] underline"
+            className="text-accent-ink underline"
             onClick={() => setSharerIds(sharerIds.size === users.length ? new Set() : new Set(users.map((u) => u.id)))}
           >
             {sharerIds.size === users.length ? "Tyhjennä" : "Valitse kaikki"}
@@ -157,15 +153,11 @@ export function PaymentForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-[#f5b544] px-4 py-2 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
+          className="rounded-full bg-accent px-4 py-2 text-sm font-bold text-on-accent hover:bg-accent-hover disabled:opacity-50"
         >
           Tallenna
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-full px-4 py-2 text-sm text-[#9aa1b0] hover:bg-white/5"
-        >
+        <button type="button" onClick={onCancel} className="rounded-full px-4 py-2 text-sm text-ink-soft hover:bg-surface-3">
           Peruuta
         </button>
       </div>

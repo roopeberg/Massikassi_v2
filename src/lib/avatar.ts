@@ -5,16 +5,22 @@
  * order), not anything derived from the name — two participants named the
  * same thing still get distinct colors, and a given participant's color
  * stays put as others are added.
+ *
+ * Returns CSS custom-property references (globals.css), not hex — each
+ * token is a light-dark() pair, so the same avatar is correctly colored in
+ * both themes with no light/dark branching here.
  */
 const PALETTE = [
-  { bg: "#f5b544", text: "#12141c" }, // amber
-  { bg: "#f2653f", text: "#fbf7f0" }, // orange
-  { bg: "#4fd39a", text: "#12141c" }, // mint
-  { bg: "#7d8cf5", text: "#12141c" }, // periwinkle
+  { bg: "var(--avatar-1-bg)", fg: "var(--avatar-1-fg)" },
+  { bg: "var(--avatar-2-bg)", fg: "var(--avatar-2-fg)" },
+  { bg: "var(--avatar-3-bg)", fg: "var(--avatar-3-fg)" },
+  { bg: "var(--avatar-4-bg)", fg: "var(--avatar-4-fg)" },
 ] as const;
 
-export function avatarColors(index: number): { bg: string; text: string } {
-  if (index < 0) return { bg: "#3a4152", text: "#f4f2ee" }; // fallback: unknown participant
+const FALLBACK = { bg: "var(--avatar-fallback-bg)", fg: "var(--avatar-fallback-fg)" };
+
+export function avatarColors(index: number): { bg: string; fg: string } {
+  if (index < 0) return FALLBACK; // unknown participant
   return PALETTE[index % PALETTE.length];
 }
 

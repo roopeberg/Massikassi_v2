@@ -1,0 +1,19 @@
+# Local development only — layered on top of docker-compose.yml.
+#
+# The deploy setup (docker-compose.yml) deliberately keeps Postgres unreachable
+# from outside the compose network: only the app container talks to it. In local
+# dev the app runs on the host (`npm run dev`), so it needs the port published.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+#
+# ...which is what `npm run db:up` does. Only the `db` service is meant to be
+# started this way; the app/mail/caddy services are for the deploy.
+#
+# Published on 5433, not Postgres's default 5432 — this machine already runs
+# another Postgres (a different project) on 5432, and re-publishing 5432 here
+# briefly took this project's own db container down (bind conflict on
+# recreate) before this was caught. Match DATABASE_URL in .env to this port.
+services:
+  db:
+    ports:
+      - "5433:5432"

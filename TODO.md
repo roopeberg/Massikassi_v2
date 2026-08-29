@@ -3,6 +3,101 @@
 Moved out of CLAUDE.md to keep that file to architecture/setup; this is the
 per-feature status log — what's done, what's open, and why, with dates.
 
+### Design-token system + real light/dark theme (ported from PR #1)
+- **Status:** ✅ Completed
+- **Last updated:** 2026-08-29
+
+Someone else (or another session) had independently opened
+[PR #1](https://github.com/roopeberg/Massikassi_v2/pull/1) from a much earlier
+point in this project's history, re-implementing the same two things already
+done directly on `main` since (dark-theme event page, GIF removal) plus one
+thing that wasn't: a real semantic colour-token system with a working
+light/dark toggle, instead of hardcoded hex per component. Reviewed the PR
+(7 confirmed/plausible findings — see the code-review output from that
+session), closed it without merging (too diverged from `main` by then —
+a trial merge produced hard conflicts in 11 files and silently-broken hybrid
+auto-merges in several more), and manually ported just the valuable pieces
+onto current `main`:
+
+- **`src/app/globals.css`** — every colour as a `light-dark()` token
+  (`canvas`, `surface`, `ink*`, `accent*`, `positive`/`negative`,
+  `avatar-1..4`, plus a `--paper-*` set introduced here for the
+  cream "paper" surfaces that stay one colour in both themes, closing a gap
+  the original PR left as scattered hardcoded hex). `color-scheme: light dark`
+  on `:root` means it already follows the OS with zero JS; `ThemeToggle`
+  overrides it via `data-theme`.
+- **`src/components/ThemeToggle.tsx`** — real 3-state toggle (auto → light →
+  dark), `useSyncExternalStore` reading `localStorage`. Pre-hydration script
+  in `layout.tsx` re-applies a stored choice before first paint.
+- **`src/components/icons.tsx`** — centralized every icon that was previously
+  redefined inline per-component.
+- **`src/lib/avatar.ts`** — reworked to return `var(--avatar-N-bg/fg)`
+  references instead of raw hex, so the same avatar is correct in both
+  themes with no branching in components.
+- Every component that previously hardcoded hex (`EventClient`, `BalancePanel`,
+  `SettlementHero`, `PaymentList`, `PaymentForm`, `UserPanel`,
+  `EventSettingsPanel`, `MigratedEventBanner`, `RetentionSelect`,
+  `CreateEventForm`, `RecoveryEmailPanel`, `RecoveryRequestForm`, the
+  landing page, `not-found.tsx`, `Logo.tsx`, and the `/recovery`/`/confirm`
+  pages) converted to tokens.
+- Dev tooling also ported: `.tool-versions` (pins Node 24 via asdf),
+  `docker-compose.dev.yml` (publishes Postgres for local `npm run dev`,
+  on **5433** not 5432 — see the Node/environment note in CLAUDE.md for why),
+  and `npm run setup`/`db:up`/`db:stop`/`db:psql`/`typecheck` scripts.
+- Fixed two real bugs noticed while touching this code, unrelated to the
+  port itself: `PaymentList`'s avatar used to show only a payment's first
+  payer, hiding co-payers on a shared bill — now an overlapping stack of all
+  of them. `EventSettingsPanel`'s retention-edit dropdown used to always
+  default to "3" months regardless of the event's actual expiry (pre-existing
+  on `main`, not introduced by the port) — now estimates months-remaining
+  from `expiresAt` instead, so saving without touching the dropdown roughly
+  preserves the current expiry instead of silently shortening it.
+
+**A real bug found and fixed during this work, not by the port itself:**
+visually verifying the toggle (does dark mode survive a page reload?)
+surfaced a genuine, pre-existing hydration bug — React error #418 on every
+event-page load, console-visible but easy to miss without actually checking.
+Root cause: `PaymentList`'s "klo HH.mm" timestamp (and a few date-only
+displays) formatted the same `Date` differently server-side (Docker,
+UTC) vs. client-side (the visitor's own timezone) — a genuine hydration
+mismatch, not just a cosmetic one. React's recovery from a hydration
+mismatch is to discard and fully re-render the affected subtree client-side,
+which — since the mismatch could bubble up the tree — was also silently
+wiping out whatever the pre-hydration theme script had just set on `<html>`,
+making the toggle's dark/light choice appear to not survive a reload. Fixed
+by extracting all date/currency formatting into `src/lib/format.ts` and
+pinning every date to `timeZone: "Europe/Helsinki"`, which makes the
+formatted string a pure function of the Date value alone — identical on
+both sides regardless of what timezone the server happens to run in. This
+also incidentally fixed the duplicated/unit-inconsistent `formatAmount`
+helpers flagged in the PR #1 code review.
+
+**Also fixed, opportunistically, while chasing the above:** this machine's
+long-standing Homebrew-node Gatekeeper/EPERM issue (documented for most of
+this project's history as "build in Docker, never on the host"). Installed
+Node via asdf instead (arm64, not the Intel/Rosetta asdf that got installed
+by mistake on the first attempt) — verified with a real `npm install` +
+`npm run build` directly in this repo on the host, no EPERM, no Rosetta
+warning. Not wired into the shell's default `PATH` yet (that's a
+cross-project change on a machine that also pins Node 22 for a different
+project — left for a deliberate choice, not made silently); see CLAUDE.md.
+
+**Verified**: `eslint`/`tsc --noEmit`/`vitest` (20/20) clean, both on the host
+(now works there too — see above) and in the `builder` Docker stage.
+Full Docker rebuild + redeploy. Visually verified both themes on the real
+running stack: landing page and event page (with a multi-payer test event)
+in light and dark, toggle cycling correctly, confirmed via
+`document.documentElement.dataset.theme` and a clean browser console (zero
+errors) that the fix holds across a hard reload, not just live toggling.
+One real mid-task mistake, caught and fully undone: a trial merge of PR #1
+was accidentally run directly in this checkout instead of an isolated
+worktree, briefly leaving several files in a conflicted state — aborted
+immediately and verified `git diff origin/main` back to empty before
+continuing. Also briefly took the real `db` container offline testing the
+new `docker-compose.dev.yml` before the port-conflict fix (5433 instead of
+5432) — caught via a failed health check, restored within a minute, no data
+loss (verified via row count before/after).
+
 ### Recovery email (PII-safe)
 - **Status:** ✅ Completed
 - **Last updated:** 2026-08-28

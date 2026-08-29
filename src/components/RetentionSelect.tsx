@@ -2,15 +2,22 @@
 export function RetentionSelect({
   value,
   onChange,
+  className,
 }: {
   value: string;
   onChange: (value: string) => void;
+  /** The two call sites sit on different grounds (a cream "paper" card vs. a
+   * dark surface card), so the base cream styling is a default, not a fixed rule. */
+  className?: string;
 }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c] outline-none focus:ring-2 focus:ring-[#f5b544]"
+      className={
+        className ??
+        "rounded-xl bg-[var(--paper-input-bg)] px-2 py-1.5 text-sm text-[var(--paper-fg)] outline-none focus:ring-2 focus:ring-accent"
+      }
     >
       {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
         <option key={m} value={m}>

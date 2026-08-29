@@ -14,7 +14,7 @@ export function Logo({ size = "lg" }: { size?: keyof typeof HEIGHTS }) {
       viewBox="0 0 304 48"
       role="img"
       aria-label="massikassi"
-      className={`${HEIGHTS[size]} w-auto text-slate-900`}
+      className={`${HEIGHTS[size]} w-auto text-ink`}
       fill="currentColor"
     >
       <g transform="translate(0,48) scale(0.1,-0.1)" stroke="none">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatDay } from "@/lib/format";
 import { RetentionSelect } from "./RetentionSelect";
 
 /**
@@ -48,25 +49,25 @@ export function MigratedEventBanner({
   }
 
   return (
-    <div className="rounded-[22px] border border-[#f5b544]/30 bg-[#f5b544]/10 p-4 text-sm text-[#f4f2ee]">
+    <div className="rounded-[22px] border border-accent/30 bg-accent/10 p-4 text-sm text-ink">
       <p>
         Tämä tapahtuma on tuotu vanhasta massikassista. Nykyään tapahtumilla on säilytysaika-asetus, ja
         tälle se asetettiin automaattisesti{" "}
-        {expiresAt ? `muotoon ${new Date(expiresAt).toLocaleDateString("fi-FI")} (12 kk)` : "—"}. Voit
+        {expiresAt ? `muotoon ${formatDay(expiresAt)} (12 kk)` : "—"}. Voit
         muuttaa tätä halutessasi 1-12 kk:een tai ikuiseksi:
       </p>
-      {error && <p className="mt-2 text-[#ff9d84]">{error}</p>}
+      {error && <p className="mt-2 text-negative">{error}</p>}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <RetentionSelect value={retentionChoice} onChange={setRetentionChoice} />
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="rounded-full bg-[#f5b544] px-3 py-1.5 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f] disabled:opacity-50"
+          className="rounded-full bg-accent px-3 py-1.5 text-sm font-bold text-on-accent hover:bg-accent-hover disabled:opacity-50"
         >
           Tallenna
         </button>
-        <button type="button" onClick={() => setDismissed(true)} className="text-sm text-[#f5b544] underline">
+        <button type="button" onClick={() => setDismissed(true)} className="text-sm text-accent-ink underline">
           Piilota
         </button>
       </div>

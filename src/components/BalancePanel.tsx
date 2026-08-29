@@ -3,14 +3,12 @@
 import { useMemo, useState } from "react";
 import { avatarColors, initials } from "@/lib/avatar";
 import { resolve, type SettlementTransfer } from "@/lib/domain/resolve";
+import { formatCents, formatEuros } from "@/lib/format";
 import type { EventPayment, EventUser } from "@/lib/types";
-
-function formatAmount(cents: number) {
-  return (cents / 100).toLocaleString("fi-FI", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+import { ShareIcon } from "./icons";
 
 function transferLine(t: SettlementTransfer) {
-  return `${t.from} maksaa ${formatAmount(t.amountCents)} € henkilölle ${t.to}`;
+  return `${t.from} maksaa ${formatCents(t.amountCents)} € henkilölle ${t.to}`;
 }
 
 /**
@@ -40,7 +38,7 @@ function buildSummaryText(
     lines.push(...(resolved.length > 0 ? resolved.map(transferLine) : ["Velat on tasattu."]));
   }
 
-  lines.push("", `Yhteensä käytetty: ${total.toLocaleString("fi-FI", { minimumFractionDigits: 2 })} €`);
+  lines.push("", `Yhteensä käytetty: ${formatEuros(total)} €`);
   return lines.join("\n");
 }
 
@@ -110,15 +108,15 @@ export function BalancePanel({
   }
 
   return (
-    <div className="rounded-[22px] bg-[#1a1e2a] p-5 sm:p-6">
-      <h2 className="font-[family-name:var(--font-bricolage)] text-lg font-semibold sm:text-xl">Saldot</h2>
+    <div className="rounded-[22px] bg-surface p-5 sm:p-6">
+      <h2 className="font-display text-lg font-semibold sm:text-xl">Saldot</h2>
 
       {result.balance.length === 0 ? (
-        <p className="mt-3 text-sm text-[#9aa1b0]">Ei vielä maksuja.</p>
+        <p className="mt-3 text-sm text-ink-soft">Ei vielä maksuja.</p>
       ) : (
         <div className="mt-5 flex flex-col gap-3.5">
           {result.balance.map((b) => {
-            const { bg, text } = avatarColors(users.findIndex((u) => u.name === b.name));
+            const { bg, fg } = avatarColors(users.findIndex((u) => u.name === b.name));
             const positive = b.balanceCents >= 0;
             const pct = Math.round((Math.abs(b.balanceCents) / maxAbsCents) * 100);
             return (
@@ -126,22 +124,22 @@ export function BalancePanel({
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[13px] font-bold"
-                    style={{ background: bg, color: text }}
+                    style={{ background: bg, color: fg }}
                   >
                     {initials(b.name)}
                   </div>
                   <span className="flex-1 text-[15px]">{b.name}</span>
                   <span
-                    className={`text-[17px] font-bold tabular-nums ${positive ? "text-[#4fd39a]" : "text-[#f2653f]"}`}
+                    className={`text-[17px] font-bold tabular-nums ${positive ? "text-positive" : "text-negative"}`}
                   >
                     {positive ? "+" : "−"}
-                    {formatAmount(Math.abs(b.balanceCents))} €
+                    {formatCents(Math.abs(b.balanceCents))} €
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[#242a38]">
+                <div className="h-1.5 overflow-hidden rounded-full bg-surface-3">
                   <div
                     className="h-1.5 rounded-full"
-                    style={{ width: `${pct}%`, background: positive ? "#4fd39a" : "#f2653f" }}
+                    style={{ width: `${pct}%`, background: `var(${positive ? "--positive-fill" : "--negative-fill"})` }}
                   />
                 </div>
               </div>
@@ -150,15 +148,15 @@ export function BalancePanel({
         </div>
       )}
 
-      <div className="mt-5 border-t border-white/10 pt-4">
-        <label className="block text-xs font-medium text-[#9aa1b0]" htmlFor="copy-summary-who">
+      <div className="mt-5 border-t border-line pt-4">
+        <label className="block text-xs font-medium text-ink-soft" htmlFor="copy-summary-who">
           Kuka olet? (valinnainen — nostaa oman siirtosi ensin)
         </label>
         <select
           id="copy-summary-who"
           value={who}
           onChange={(e) => setWho(e.target.value)}
-          className="mt-1 w-full rounded-xl bg-[#efeae0] px-2 py-1.5 text-sm text-[#12141c]"
+          className="mt-1 w-full rounded-xl bg-[var(--paper-input-bg)] px-2 py-1.5 text-sm text-[var(--paper-fg)]"
         >
           <option value="">— ei valintaa —</option>
           {users.map((u) => (
@@ -171,7 +169,7 @@ export function BalancePanel({
           <button
             type="button"
             onClick={copySummary}
-            className="flex-1 rounded-full bg-[#f5b544] px-3 py-2 text-sm font-bold text-[#12141c] hover:bg-[#ffc95f]"
+            className="flex-1 rounded-full bg-accent px-3 py-2 text-sm font-bold text-on-accent hover:bg-accent-hover"
           >
             {copied === "summary" ? "Kopioitu!" : "Kopioi yhteenveto"}
           </button>
@@ -179,13 +177,14 @@ export function BalancePanel({
             <button
               type="button"
               onClick={shareSummary}
-              className="rounded-full border border-white/20 px-3 py-2 text-sm font-medium hover:bg-white/5"
+              className="flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-sm font-medium hover:bg-surface-3"
             >
+              <ShareIcon className="h-4 w-4" />
               Jaa
             </button>
           )}
         </div>
-        <p className="mt-1 text-xs text-[#6b7080]">
+        <p className="mt-1 text-xs text-ink-subtle">
           Liitä esim. Signal- tai WhatsApp-ryhmään. Ei lähetä mitään itse.
         </p>
 
@@ -193,7 +192,7 @@ export function BalancePanel({
           <button
             type="button"
             onClick={copyPersonalLink}
-            className="mt-2 w-full rounded-full border border-white/20 px-3 py-2 text-sm hover:bg-white/5"
+            className="mt-2 w-full rounded-full border border-line px-3 py-2 text-sm hover:bg-surface-3"
           >
             {copied === "link" ? "Linkki kopioitu!" : `Kopioi henkilökohtainen linkki (${who})`}
           </button>

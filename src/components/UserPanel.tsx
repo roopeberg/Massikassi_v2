@@ -46,19 +46,19 @@ export function UserPanel({
   }
 
   return (
-    <div className="rounded-[22px] bg-[#1a1e2a] p-5 sm:p-6">
+    <div className="rounded-[22px] bg-surface p-5 sm:p-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-[family-name:var(--font-bricolage)] text-lg font-semibold sm:text-xl">Osallistujat</h2>
-        <span className="text-[13px] text-[#8a8f9d]">{users.length}</span>
+        <h2 className="font-display text-lg font-semibold sm:text-xl">Osallistujat</h2>
+        <span className="text-[13px] text-ink-muted">{users.length}</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {users.map((u, i) => {
-          const { bg, text } = avatarColors(i);
+          const { bg, fg } = avatarColors(i);
           return (
-            <div key={u.id} className="flex h-11 items-center gap-2 rounded-full bg-[#242a38] py-0 pr-4 pl-1.5">
+            <div key={u.id} className="flex h-11 items-center gap-2 rounded-full bg-surface-3 py-0 pr-4 pl-1.5">
               <div
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                style={{ background: bg, color: text }}
+                style={{ background: bg, color: fg }}
               >
                 {initials(u.name)}
               </div>
@@ -73,17 +73,17 @@ export function UserPanel({
           onChange={(e) => setName(e.target.value)}
           placeholder="Uusi nimi"
           required
-          className="h-12 min-w-0 flex-1 rounded-full bg-[#242a38] px-4 text-sm text-[#f4f2ee] outline-none placeholder:text-[#6b7080] focus:ring-2 focus:ring-[#f5b544]"
+          className="h-12 min-w-0 flex-1 rounded-full bg-surface-3 px-4 text-sm text-ink outline-none placeholder:text-ink-subtle focus:ring-2 focus:ring-accent"
         />
         <button
           type="submit"
           disabled={submitting}
-          className="h-12 shrink-0 rounded-full bg-[#f4f2ee] px-5 text-sm font-bold text-[#12141c] hover:bg-white disabled:opacity-50"
+          className="h-12 shrink-0 rounded-full bg-btn-alt-bg px-5 text-sm font-bold text-btn-alt-fg hover:opacity-90 disabled:opacity-50"
         >
           Lisää
         </button>
       </form>
-      {error && <p className="mt-2 text-xs text-[#ff9d84]">{error}</p>}
+      {error && <p className="mt-2 text-xs text-negative">{error}</p>}
     </div>
   );
 }
